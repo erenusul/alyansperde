@@ -1,9 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './Header.css';
 
 const Header: React.FC = () => {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const aboutSection = document.getElementById('hakkimizda');
+      if (aboutSection) {
+        const aboutTop = aboutSection.offsetTop;
+        const scrollPosition = window.scrollY;
+        
+        // About kısmına gelince header'ı göster
+        if (scrollPosition >= aboutTop - 100) {
+          setIsScrolled(true);
+        } else {
+          setIsScrolled(false);
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <header className="header">
+    <header className={`header ${isScrolled ? 'header-visible' : 'header-hidden'}`}>
       <div className="header-container">
         <div className="logo">
           
