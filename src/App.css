@@ -7,6 +7,8 @@
 body {
   font-family: 'Arial', sans-serif;
   overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
 }
 
 #root {
@@ -17,4 +19,16 @@ body {
 .app {
   width: 100%;
   min-height: 100vh;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }

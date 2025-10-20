@@ -78,6 +78,7 @@
   
   .about-container {
     padding: 0 1.5rem;
+    max-width: 100%;
   }
   
   .about-title {
@@ -98,6 +99,7 @@
   
   .about-container {
     padding: 0 1rem;
+    max-width: 100%;
   }
   
   .about-title {

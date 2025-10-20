@@ -20,6 +20,11 @@ const GalleryDetail: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   useEffect(() => {
+    // Sayfa yüklendiğinde en üste scroll yap
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     // URL'den category parametresini oku
     const urlCategory = searchParams.get('category') || category || 'all';
     setSelectedCategory(urlCategory);

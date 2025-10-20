@@ -67,7 +67,19 @@ const Gallery: React.FC = () => {
       <div className="gallery-container">
         <div className="gallery-header">
           <h2 className="gallery-title">PERDE ÇEŞİTLERİMİZ</h2>
-        
+          <div 
+            className="view-all-btn"
+            onClick={() => navigate('/galeri')}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                navigate('/galeri');
+              }
+            }}
+          >
+            Tüm Çeşitleri Gör
+          </div>
         </div>
         
         <div className="gallery-grid">
