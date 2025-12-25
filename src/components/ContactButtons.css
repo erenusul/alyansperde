@@ -43,15 +43,15 @@
 }
 
 .contact-btn-primary {
-  background-color: #2c2c2c;
+  background-color: #dc3545;
   color: #ffffff;
 }
 
 .contact-btn-primary:hover {
-  background-color: #ffffff;
-  color: #2c2c2c;
+  background-color: #c82333;
+  color: #ffffff;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
 }
 
 .contact-btn-whatsapp {
@@ -60,8 +60,8 @@
 }
 
 .contact-btn-whatsapp:hover {
-  background-color: #ffffff;
-  color: #25D366;
+  background-color: #128C7E;
+  color: #ffffff;
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
 }
@@ -92,7 +92,7 @@
 }
 
 .contact-btn-primary:hover .phone-icon-img {
-  filter: brightness(0) invert(0);
+  filter: brightness(0) invert(1);
 }
 
 .btn-text {

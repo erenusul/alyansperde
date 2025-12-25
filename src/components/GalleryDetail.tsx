@@ -1,261 +1,568 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { ordersService } from '../services/orders.service';
+import { productsService } from '../services/products.service';
+import { categoriesService } from '../services/categories.service';
+import type { Product } from '../services/products.service';
+import type { Category } from '../services/categories.service';
 import './GalleryDetail.css';
-
-interface CurtainDetail {
-  id: number;
-  name: string;
-  description: string;
-  image: string;
-  category: string;
-  price: string;
-  features: string[];
-}
 
 const GalleryDetail: React.FC = () => {
   const { category } = useParams<{ category: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const { user } = useAuth();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+  
+  // Sepet state'leri
+  const [cart, setCart] = useState<Array<{ productId: number; quantity: number }>>([]);
+  const [showCart, setShowCart] = useState(false);
+  
+  // Tek ürün satın alma state'leri
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [quantity, setQuantity] = useState<number>(1);
+  const [paymentData, setPaymentData] = useState({
+    cardNumber: '',
+    cardName: '',
+    expiryDate: '',
+    cvv: '',
+    address: '',
+    city: '',
+    phone: ''
+  });
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const loadData = useCallback(async () => {
+    try {
+      const [categoriesData, productsData] = await Promise.all([
+        categoriesService.getAll(),
+        productsService.getAll()
+      ]);
+      setCategories(categoriesData);
+      setProducts(productsData);
+    } catch (error) {
+      console.error('Veriler yüklenirken hata:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     // Sayfa yüklendiğinde en üste scroll yap
     window.scrollTo(0, 0);
-  }, []);
+    loadData();
+  }, [loadData]);
 
   useEffect(() => {
-    // URL'den category parametresini oku
+    // URL'den category parametresini oku ve kategori ID'sine çevir
     const urlCategory = searchParams.get('category') || category || 'all';
-    setSelectedCategory(urlCategory);
-  }, [searchParams, category]);
-
-  const curtainDetails: CurtainDetail[] = [
-    // Klasik Perdeler
-    {
-      id: 1,
-      name: "Klasik Kadife Perde",
-      description: "Lüks kadife kumaştan üretilen, geleneksel tasarımlı klasik perde",
-      image: "/perdeopt.png",
-      category: "klasik",
-      price: "₺150-300",
-      features: ["Kadife kumaş", "Geleneksel tasarım", "Işık kontrolü", "Kolay temizlik"]
-    },
-    {
-      id: 2,
-      name: "Klasik Pamuklu Perde",
-      description: "Doğal pamuk kumaştan üretilen, nefes alabilir klasik perde",
-      image: "/perdeopt.png",
-      category: "klasik",
-      price: "₺100-200",
-      features: ["Doğal pamuk", "Nefes alabilir", "Yıkanabilir", "Ekolojik"]
-    },
-    // Modern Rollo Stor
-    {
-      id: 3,
-      name: "Modern Rollo Stor",
-      description: "Pratik kullanım ve modern tasarımın buluştuğu rollo stor",
-      image: "/perdeopt.png",
-      category: "modern",
-      price: "₺80-150",
-      features: ["Pratik kullanım", "Modern tasarım", "Kolay montaj", "Uzun ömürlü"]
-    },
-    {
-      id: 4,
-      name: "Motorlu Rollo Stor",
-      description: "Uzaktan kumandalı, otomatik açılıp kapanan motorlu rollo stor",
-      image: "/perdeopt.png",
-      category: "modern",
-      price: "₺200-400",
-      features: ["Uzaktan kumanda", "Otomatik sistem", "Sessiz çalışma", "Güvenli"]
-    },
-    // Blackout Perdeler
-    {
-      id: 5,
-      name: "Blackout Perde",
-      description: "Maksimum ışık kontrolü sağlayan, tamamen karanlık ortam yaratan perde",
-      image: "/perdeopt.png",
-      category: "blackout",
-      price: "₺120-250",
-      features: ["%100 ışık blokajı", "Ses yalıtımı", "Enerji tasarrufu", "Kaliteli kumaş"]
-    },
-    {
-      id: 6,
-      name: "Blackout Rollo",
-      description: "Pratik kullanımlı, maksimum ışık kontrolü sağlayan blackout rollo",
-      image: "/perdeopt.png",
-      category: "blackout",
-      price: "₺100-200",
-      features: ["%100 ışık blokajı", "Pratik kullanım", "Kolay temizlik", "Modern görünüm"]
-    },
-    // Dekoratif Tüller
-    {
-      id: 7,
-      name: "Dekoratif Tül",
-      description: "Şık ve hafif tül perde ile zarif dekorasyon",
-      image: "/perdeopt.png",
-      category: "tul",
-      price: "₺50-120",
-      features: ["Hafif kumaş", "Zarif görünüm", "Işık geçirgen", "Kolay bakım"]
-    },
-    {
-      id: 8,
-      name: "İşlemeli Tül",
-      description: "Özel işlemeli desenli, dekoratif tül perde",
-      image: "/perdeopt.png",
-      category: "tul",
-      price: "₺80-150",
-      features: ["Özel işleme", "Dekoratif desen", "Kaliteli kumaş", "Şık görünüm"]
-    },
-    // Zebra Stor
-    {
-      id: 9,
-      name: "Zebra Stor",
-      description: "Alternatif şeritli tasarımı ile öne çıkan zebra stor perde",
-      image: "/perdeopt.png",
-      category: "zebra",
-      price: "₺90-180",
-      features: ["Alternatif şerit", "Modern tasarım", "Işık kontrolü", "Pratik kullanım"]
-    },
-    {
-      id: 10,
-      name: "Zebra Blackout",
-      description: "Zebra desenli, ışık blokajı sağlayan özel stor",
-      image: "/perdeopt.png",
-      category: "zebra",
-      price: "₺120-220",
-      features: ["Zebra desen", "Işık blokajı", "Modern görünüm", "Kaliteli malzeme"]
-    },
-    // Pleatli Perdeler
-    {
-      id: 11,
-      name: "Pleatli Perde",
-      description: "Düzenli kıvrımları ile şık görünüm sunan pleatli perde",
-      image: "/perdeopt.png",
-      category: "pleatli",
-      price: "₺110-220",
-      features: ["Düzenli kıvrım", "Şık görünüm", "Kaliteli kumaş", "Kolay kullanım"]
-    },
-    {
-      id: 12,
-      name: "Pleatli Stor",
-      description: "Pleatli tasarımlı, modern stor perde çözümü",
-      image: "/perdeopt.png",
-      category: "pleatli",
-      price: "₺100-190",
-      features: ["Pleatli tasarım", "Modern görünüm", "Pratik kullanım", "Uzun ömürlü"]
+    if (urlCategory === 'all') {
+      setSelectedCategoryId(null);
+    } else if (categories.length > 0) {
+      // Kategori slug'ını kategori ismine çevir
+      const categoryMap: { [key: string]: string } = {
+        'klasik': 'Klasik Perdeler',
+        'modern': 'Modern Rollo Stor',
+        'blackout': 'Blackout Perdeler',
+        'tul': 'Dekoratif Tüller',
+        'zebra': 'Zebra Stor',
+        'pleatli': 'Pleatli Perdeler'
+      };
+      const categoryName = categoryMap[urlCategory];
+      if (categoryName) {
+        const foundCategory = categories.find(cat => cat.name === categoryName);
+        if (foundCategory) {
+          setSelectedCategoryId(foundCategory.id);
+        } else {
+          setSelectedCategoryId(null);
+        }
+      } else {
+        setSelectedCategoryId(null);
+      }
     }
-  ];
+  }, [searchParams, category, categories]);
 
-  const filteredCurtains = curtainDetails.filter(curtain => {
-    const matchesCategory = selectedCategory === 'all' || curtain.category === selectedCategory;
-    const matchesSearch = searchTerm === '' || 
-      curtain.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      curtain.description.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const filteredProducts = useMemo(() => {
+    return products.filter(product => {
+      const matchesCategory = selectedCategoryId === null || product.categoryId === selectedCategoryId;
+      const matchesSearch = searchTerm === '' || 
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase()));
+      return matchesCategory && matchesSearch;
+    });
+  }, [products, selectedCategoryId, searchTerm]);
 
-  const categoryNames: { [key: string]: string } = {
-    'klasik': 'Klasik Perdeler',
-    'modern': 'Modern Rollo Stor',
-    'blackout': 'Blackout Perdeler',
-    'tul': 'Dekoratif Tüller',
-    'zebra': 'Zebra Stor',
-    'pleatli': 'Pleatli Perdeler'
+  const categoryFilters = useMemo(() => [
+    { value: null, label: 'Tüm Kategoriler' },
+    ...categories.map(cat => ({ value: cat.id, label: cat.name }))
+  ], [categories]);
+
+  // Sepet fonksiyonları
+  const addToCart = (productId: number) => {
+    if (!user) {
+      alert('Sepete eklemek için lütfen giriş yapın.');
+      navigate('/login');
+      return;
+    }
+    const existingItem = cart.find((item) => item.productId === productId);
+    if (existingItem) {
+      setCart(
+        cart.map((item) =>
+          item.productId === productId
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        )
+      );
+    } else {
+      setCart([...cart, { productId, quantity: 1 }]);
+    }
   };
 
-  const categoryFilters = [
-    { value: 'all', label: 'Tüm Kategoriler' },
-    { value: 'klasik', label: 'Klasik Perdeler' },
-    { value: 'modern', label: 'Modern Rollo Stor' },
-    { value: 'blackout', label: 'Blackout Perdeler' },
-    { value: 'tul', label: 'Dekoratif Tüller' },
-    { value: 'zebra', label: 'Zebra Stor' },
-    { value: 'pleatli', label: 'Pleatli Perdeler' }
-  ];
+  const removeFromCart = (productId: number) => {
+    setCart(cart.filter((item) => item.productId !== productId));
+  };
+
+  const updateCartQuantity = (productId: number, quantity: number) => {
+    if (quantity <= 0) {
+      removeFromCart(productId);
+      return;
+    }
+    setCart(
+      cart.map((item) =>
+        item.productId === productId ? { ...item, quantity } : item
+      )
+    );
+  };
+
+  const getCartTotal = () => {
+    return cart.reduce((total, item) => {
+      const product = products.find((p) => p.id === item.productId);
+      return total + (product ? Number(product.price) * item.quantity : 0);
+    }, 0);
+  };
+
+  // Tek ürün satın alma
+  const handleBuyClick = (product: Product) => {
+    if (!user) {
+      alert('Satın alma işlemi için lütfen giriş yapın.');
+      navigate('/login');
+      return;
+    }
+    setSelectedProduct(product);
+    setQuantity(1);
+    setShowPaymentModal(true);
+  };
+
+  // Sepetten toplu sipariş verme
+  const handleCartCheckout = async () => {
+    if (cart.length === 0) {
+      alert('Sepetiniz boş!');
+      return;
+    }
+
+    if (!user) {
+      alert('Sipariş vermek için lütfen giriş yapın.');
+      navigate('/login');
+      return;
+    }
+
+    try {
+      await ordersService.create({ items: cart });
+      setCart([]);
+      setShowCart(false);
+      alert('Siparişiniz başarıyla oluşturuldu!');
+      navigate('/user/orders');
+    } catch (error: any) {
+      alert(error.response?.data?.message || 'Sipariş oluşturulurken bir hata oluştu.');
+    }
+  };
+
+  const handlePaymentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!selectedProduct) return;
+
+    setIsProcessing(true);
+    
+    try {
+      // Backend'deki gerçek ürün ID'si ile sipariş oluştur
+      await ordersService.create({
+        items: [{
+          productId: selectedProduct.id,
+          quantity: quantity
+        }]
+      });
+
+      alert('Siparişiniz başarıyla oluşturuldu!');
+      setShowPaymentModal(false);
+      setSelectedProduct(null);
+      setQuantity(1);
+      setPaymentData({
+        cardNumber: '',
+        cardName: '',
+        expiryDate: '',
+        cvv: '',
+        address: '',
+        city: '',
+        phone: ''
+      });
+      
+      // Siparişlerim sayfasına yönlendir
+      navigate('/user/orders');
+    } catch (error: any) {
+      alert(error.response?.data?.message || 'Sipariş oluşturulurken bir hata oluştu.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
 
 
   return (
     <div className="gallery-detail">
       <div className="gallery-detail-container">
+        <Link to="/#galeri" className="back-to-home-btn">← Ana Sayfa</Link>
         <div className="gallery-detail-header">
-          <button 
-            className="back-button"
-            onClick={() => navigate('/')}
-          >
-            ← Ana Sayfaya Dön
-          </button>
           <h1 className="gallery-detail-title">
             TÜM PERDE ÇEŞİTLERİ
           </h1>
-         
+          {user && (
+            <button onClick={() => setShowCart(true)} className="cart-button">
+              Sepet ({cart.length})
+            </button>
+          )}
         </div>
 
         <div className="filter-section">
-          <h3 className="filter-title">Arama</h3>
-          <div className="search-container">
-            <input
-              type="text"
-              placeholder="Perde adı veya açıklama ara..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-          </div>
-          
-          <h3 className="filter-title">Kategoriye Göre Filtrele</h3>
-          <div className="filter-buttons">
-            {categoryFilters.map((filter) => (
-              <button
-                key={filter.value}
-                className={`filter-btn ${selectedCategory === filter.value ? 'active' : ''}`}
-                onClick={() => setSelectedCategory(filter.value)}
-              >
-                {filter.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="gallery-detail-grid">
-          {filteredCurtains.map((curtain) => (
-            <div key={curtain.id} className="gallery-detail-item">
-              <div className="gallery-detail-image-container">
-                <img 
-                  src={curtain.image} 
-                  alt={curtain.name}
-                  className="gallery-detail-image"
-                />
-              </div>
-              <div className="gallery-detail-content">
-                <h3 className="gallery-detail-item-title">{curtain.name}</h3>
-                <p className="gallery-detail-item-description">{curtain.description}</p>
-                <div className="price-section">
-                  <span className="price-label">Fiyat:</span>
-                  <span className="price-value">{curtain.price}</span>
-                </div>
-                <div className="features-section">
-                  <h4 className="features-title">Özellikler:</h4>
-                  <ul className="features-list">
-                    {curtain.features.map((feature, index) => (
-                      <li key={index} className="feature-item">{feature}</li>
-                    ))}
-                  </ul>
-                </div>
-                <button className="contact-btn">
-                  Bilgi Al
-                </button>
-              </div>
+          <div className="search-row">
+            <h3 className="filter-title">Arama</h3>
+            <div className="search-container">
+              <input
+                type="text"
+                placeholder="Perde adı veya açıklama ara..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input"
+              />
             </div>
-          ))}
+            
+            <h3 className="filter-title">Kategoriye Göre Filtrele</h3>
+            <div className="filter-buttons">
+              {categoryFilters.map((filter) => (
+                <button
+                  key={filter.value || 'all'}
+                  className={`filter-btn ${selectedCategoryId === filter.value ? 'active' : ''}`}
+                  onClick={() => setSelectedCategoryId(filter.value)}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
-        {filteredCurtains.length === 0 && (
+        {loading ? (
+          <div className="no-results">
+            <p>Yükleniyor...</p>
+          </div>
+        ) : filteredProducts.length === 0 ? (
           <div className="no-results">
             <p>Arama kriterlerinize uygun ürün bulunamadı.</p>
           </div>
+        ) : (
+          <div className="gallery-detail-grid">
+            {filteredProducts.map((product) => (
+              <div key={product.id} className="gallery-detail-item">
+                <div className="gallery-detail-image-container">
+                  <img 
+                    src={product.imageUrl || "/perdeopt.png"} 
+                    alt={product.name}
+                    className="gallery-detail-image"
+                  />
+                </div>
+                <div className="gallery-detail-content">
+                  <h3 className="gallery-detail-item-title">{product.name}</h3>
+                  <p className="gallery-detail-item-description">{product.description || ''}</p>
+                  <div className="price-section">
+                    <span className="price-label">Fiyat:</span>
+                    <span className="price-value">₺{Number(product.price).toFixed(2)}</span>
+                  </div>
+                  {product.category && (
+                    <div className="features-section">
+                      <h4 className="features-title">Kategori:</h4>
+                      <p className="feature-item">{product.category.name}</p>
+                    </div>
+                  )}
+                    {user && (() => {
+                      const cartItem = cart.find(item => item.productId === product.id);
+                      return (
+                        <div className="product-actions">
+                          {cartItem ? (
+                            <div className="cart-controls">
+                              <button 
+                                onClick={() => updateCartQuantity(product.id, cartItem.quantity - 1)}
+                                className="quantity-btn"
+                              >
+                                -
+                              </button>
+                              <span className="quantity-value">{cartItem.quantity}</span>
+                              <button 
+                                onClick={() => updateCartQuantity(product.id, cartItem.quantity + 1)}
+                                className="quantity-btn"
+                              >
+                                +
+                              </button>
+                              <button 
+                                onClick={() => removeFromCart(product.id)}
+                                className="remove-btn"
+                              >
+                                Kaldır
+                              </button>
+                            </div>
+                          ) : (
+                            <>
+                              <button 
+                                className="contact-btn buy-btn"
+                                onClick={() => addToCart(product.id)}
+                              >
+                                Sepete Ekle
+                              </button>
+                              <button 
+                                className="contact-btn buy-btn"
+                                onClick={() => handleBuyClick(product)}
+                              >
+                                Hemen Al
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      );
+                    })()}
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
+
+      {/* Sepet Modal */}
+      {showCart && (
+        <div className="payment-modal-overlay" onClick={() => setShowCart(false)}>
+          <div className="payment-modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2 className="payment-modal-title">Sepet</h2>
+            {cart.length === 0 ? (
+              <p>Sepetiniz boş</p>
+            ) : (
+              <>
+                <div className="cart-items">
+                  {cart.map((item) => {
+                    const product = products.find((p) => p.id === item.productId);
+                    if (!product) return null;
+                    return (
+                      <div key={item.productId} className="cart-item">
+                        <div className="cart-item-info">
+                          <span>{product.name}</span>
+                          <span>x{item.quantity}</span>
+                        </div>
+                        <div className="cart-item-price">
+                          <span>₺{(Number(product.price) * item.quantity).toFixed(2)}</span>
+                          <button 
+                            onClick={() => removeFromCart(item.productId)}
+                            className="remove-btn"
+                          >
+                            Kaldır
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="cart-total">
+                  <strong>Toplam: ₺{getCartTotal().toFixed(2)}</strong>
+                </div>
+                <div className="payment-modal-actions">
+                  <button 
+                    onClick={() => setShowCart(false)}
+                    className="cancel-btn"
+                  >
+                    Kapat
+                  </button>
+                  <button 
+                    onClick={handleCartCheckout}
+                    className="submit-btn"
+                  >
+                    Sipariş Ver
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Ödeme Modal */}
+      {showPaymentModal && selectedProduct && (
+        <div className="payment-modal-overlay" onClick={() => setShowPaymentModal(false)}>
+          <div className="payment-modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2 className="payment-modal-title">Ödeme İşlemi</h2>
+            
+            <div className="order-summary">
+              <h3>Sipariş Özeti</h3>
+              <div className="summary-item">
+                <span>Ürün:</span>
+                <span>{selectedProduct.name}</span>
+              </div>
+              <div className="summary-item">
+                <span>Fiyat:</span>
+                <span>₺{Number(selectedProduct.price).toFixed(2)}</span>
+              </div>
+              <div className="summary-item">
+                <span>Adet:</span>
+                <div className="quantity-controls">
+                  <button 
+                    type="button"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="quantity-btn"
+                  >
+                    -
+                  </button>
+                  <span className="quantity-value">{quantity}</span>
+                  <button 
+                    type="button"
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="quantity-btn"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              <div className="summary-item total">
+                <span>Toplam:</span>
+                <span className="total-price">
+                  ₺{(Number(selectedProduct.price) * quantity).toFixed(2)}
+                </span>
+              </div>
+            </div>
+
+            <form onSubmit={handlePaymentSubmit} className="payment-form">
+              <h3>Kart Bilgileri</h3>
+              
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Kart Numarası</label>
+                  <input
+                    type="text"
+                    placeholder="1234 5678 9012 3456"
+                    value={paymentData.cardNumber}
+                    onChange={(e) => setPaymentData({...paymentData, cardNumber: e.target.value})}
+                    required
+                    maxLength={19}
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Kart Üzerindeki İsim</label>
+                  <input
+                    type="text"
+                    placeholder="Ad Soyad"
+                    value={paymentData.cardName}
+                    onChange={(e) => setPaymentData({...paymentData, cardName: e.target.value})}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Son Kullanma Tarihi</label>
+                  <input
+                    type="text"
+                    placeholder="MM/YY"
+                    value={paymentData.expiryDate}
+                    onChange={(e) => setPaymentData({...paymentData, expiryDate: e.target.value})}
+                    required
+                    maxLength={5}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>CVV</label>
+                  <input
+                    type="text"
+                    placeholder="123"
+                    value={paymentData.cvv}
+                    onChange={(e) => setPaymentData({...paymentData, cvv: e.target.value})}
+                    required
+                    maxLength={3}
+                  />
+                </div>
+              </div>
+
+              <h3>Teslimat Bilgileri</h3>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Adres</label>
+                  <textarea
+                    placeholder="Tam adres bilgisi"
+                    value={paymentData.address}
+                    onChange={(e) => setPaymentData({...paymentData, address: e.target.value})}
+                    required
+                    rows={3}
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Şehir</label>
+                  <input
+                    type="text"
+                    placeholder="Şehir"
+                    value={paymentData.city}
+                    onChange={(e) => setPaymentData({...paymentData, city: e.target.value})}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Telefon</label>
+                  <input
+                    type="tel"
+                    placeholder="05XX XXX XX XX"
+                    value={paymentData.phone}
+                    onChange={(e) => setPaymentData({...paymentData, phone: e.target.value})}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="payment-modal-actions">
+                <button 
+                  type="button" 
+                  onClick={() => setShowPaymentModal(false)}
+                  className="cancel-btn"
+                >
+                  İptal
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={isProcessing}
+                  className="submit-btn"
+                >
+                  {isProcessing ? 'İşleniyor...' : 'Ödemeyi Tamamla'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

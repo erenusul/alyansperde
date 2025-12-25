@@ -1,0 +1,36 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import './Admin.css';
+
+/**
+ * Admin Dashboard Component
+ * Admin kullanıcılar için ana kontrol paneli sayfası
+ * Kategoriler, ürünler ve siparişler için hızlı erişim linkleri sağlar
+ */
+const Dashboard: React.FC = () => {
+  return (
+    <div className="admin-container">
+      <Link to="/" className="admin-back-home">← Ana Sayfa</Link>
+      <div className="admin-header">
+        <h1>Admin Paneli</h1>
+      </div>
+      <div className="admin-grid">
+        <Link to="/admin/categories" className="admin-card">
+          <h2>Kategoriler</h2>
+          <p>Kategori yönetimi </p>
+        </Link>
+        <Link to="/admin/products" className="admin-card">
+          <h2>Ürünler</h2>
+          <p>Ürün yönetimi </p>
+        </Link>
+        <Link to="/admin/orders" className="admin-card">
+          <h2>Siparişler</h2>
+          <p>Sipariş yönetimi ve durum güncellemeleri</p>
+        </Link>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
+

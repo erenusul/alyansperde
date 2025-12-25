@@ -21,6 +21,7 @@
   padding: 1rem 0;
   transition: transform 0.3s ease-in-out;
   border: none;
+  width: 100%;
 }
 
 .header-hidden {
@@ -44,7 +45,13 @@
   border-radius: 20px;
   border: none;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  height: 50px;
+  min-height: 50px;
+  height: auto;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
 }
 
 .logo h2 {
@@ -55,6 +62,28 @@
   margin: 0;
   letter-spacing: 1px;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.home-link {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: #ffffff;
+  text-decoration: none;
+  padding: 0;
+  border: none;
+  background: none;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.home-link:hover {
+  color: #f0f0f0;
+  font-size: 1rem;
 }
 
 .navigation {
@@ -68,10 +97,13 @@
   margin: 0;
   padding: 0;
   gap: 2rem;
+  align-items: center;
 }
 
 .nav-item {
   position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .nav-link {
@@ -83,10 +115,43 @@
   padding: 0.5rem 1rem;
   border-radius: 10px;
   transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.5;
+  white-space: nowrap;
 }
 
 .nav-link:hover {
   color: #2c2c2c;
+}
+
+.user-name {
+  color: #4caf50 !important;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+}
+
+.logout-btn {
+  background: #f44336;
+  border: none;
+  cursor: pointer;
+  color: white !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Oswald', sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: #d32f2f;
+  color: white !important;
 }
 
 

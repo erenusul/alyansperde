@@ -18,42 +18,42 @@ const Gallery: React.FC = () => {
       id: 1,
       name: "Klasik Perdeler",
       description: "Geleneksel tasarım ve kaliteli kumaşlarla üretilen klasik perdeler",
-      image: "/perdeopt.png",
+      image: "/alyansperdegorselleroptimize/Klasik_Kadife_Perde.png",
       category: "klasik"
     },
     {
       id: 2,
       name: "Modern Rollo Stor",
       description: "Pratik kullanım ve modern tasarımın buluştuğu rollo stor çözümleri",
-      image: "/perdeopt.png",
+      image: "/alyansperdegorselleroptimize/Modern_Rollo_Stor.png",
       category: "modern"
     },
     {
       id: 3,
       name: "Blackout Perdeler",
       description: "Maksimum ışık kontrolü sağlayan blackout perdeler",
-      image: "/perdeopt.png",
+      image: "/alyansperdegorselleroptimize/Blackout_Perde.png",
       category: "blackout"
     },
     {
       id: 4,
       name: "Dekoratif Tüller",
       description: "Şık ve hafif tül perdeler ile zarif dekorasyon",
-      image: "/perdeopt.png",
+      image: "/alyansperdegorselleroptimize/Dekoratif_Tül_Perde.png",
       category: "tul"
     },
     {
       id: 5,
       name: "Zebra Stor",
       description: "Alternatif şeritli tasarımı ile öne çıkan zebra stor perdeler",
-      image: "/perdeopt.png",
+      image: "/alyansperdegorselleroptimize/Zebra_Stor_Perde.png",
       category: "zebra"
     },
     {
       id: 6,
       name: "Pleatli Perdeler",
       description: "Düzenli kıvrımları ile şık görünüm sunan pleatli perdeler",
-      image: "/perdeopt.png",
+      image: "/alyansperdegorselleroptimize/Pleatli_Perde.png",
       category: "pleatli"
     }
   ];
@@ -78,7 +78,7 @@ const Gallery: React.FC = () => {
               }
             }}
           >
-            Tüm Çeşitleri Gör
+            Tüm Çeşitleri Gör ve Sipariş Et
           </div>
         </div>
         
