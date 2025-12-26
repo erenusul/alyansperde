@@ -17,7 +17,7 @@ const Footer: React.FC = () => {
             <div className="contact-info">
               <p className="contact-item">
                 
-              •   0507 490 18 09
+              •   0555 123 45 67
               </p>
            
               <p className="contact-item">

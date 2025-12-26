@@ -28,12 +28,12 @@ const ContactButtons: React.FC = () => {
   }, []);
   const handleContactClick = () => {
     // Direkt arama yap
-    window.open('tel:05074901809', '_self');
+    window.open('tel:05551234567', '_self');
   };
 
   const handleWhatsAppClick = () => {
     // WhatsApp iletişim linki
-    const phoneNumber = '905074901809'; // Güncellenmiş telefon numarası
+    const phoneNumber = '905551234567'; // Uydurma telefon numarası
     const message = 'Merhaba, perde hizmetleriniz hakkında bilgi almak istiyorum.';
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
