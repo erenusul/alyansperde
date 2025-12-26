@@ -44,4 +44,20 @@ html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+  
+  .app {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+  
+  .app {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
 }

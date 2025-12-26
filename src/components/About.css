@@ -86,6 +86,10 @@
     margin-bottom: 2rem;
   }
   
+  .about-title::after {
+    width: 280px;
+  }
+  
   .about-text p {
     font-size: 1rem;
     margin-bottom: 1.5rem;
@@ -107,8 +111,13 @@
     letter-spacing: 1px;
   }
   
+  .about-title::after {
+    width: 200px;
+  }
+  
   .about-text p {
     font-size: 0.95rem;
     margin-bottom: 1.2rem;
+    text-align: left;
   }
 }

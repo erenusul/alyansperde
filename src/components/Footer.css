@@ -169,16 +169,29 @@
   }
   
   .footer-content {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+  }
+  
+  .footer-section:first-child {
+    grid-column: 1 / -1;
+    margin-bottom: 0;
+  }
+  
+  .footer-section:nth-child(2),
+  .footer-section:nth-child(3) {
+    grid-column: span 1;
   }
   
   .footer-title {
     font-size: 1.5rem;
+    margin-bottom: 0.8rem;
   }
   
   .footer-subtitle {
     font-size: 1.1rem;
+    margin-bottom: 0.8rem;
   }
   
   .footer-subtitle::after {
@@ -186,7 +199,7 @@
   }
   
   .social-links {
-    justify-content: center;
+    justify-content: flex-start;
   }
 }
 
@@ -196,21 +209,63 @@
     margin-top: 0;
   }
   
+  .footer-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+  }
+  
+  .footer-section:first-child {
+    grid-column: 1 / -1;
+    margin-bottom: 0;
+  }
+  
+  .footer-section:nth-child(2),
+  .footer-section:nth-child(3) {
+    grid-column: span 1;
+  }
+  
   .footer-title {
     font-size: 1.3rem;
+    margin-bottom: 0.6rem;
   }
   
   .footer-subtitle {
-    font-size: 1rem;
+    font-size: 0.95rem;
+    margin-bottom: 0.8rem;
   }
   
   .footer-subtitle::after {
-    width: 80px;
+    width: 70px;
+  }
+  
+  .contact-info {
+    gap: 0.6rem;
+  }
+  
+  .contact-item {
+    font-size: 0.85rem;
+  }
+  
+  .social-links {
+    justify-content: flex-start;
+  }
+  
+  .social-link {
+    font-size: 2rem;
+    gap: 0.6rem;
+  }
+  
+  .social-text {
+    font-size: 0.9rem;
+  }
+  
+  .account-name {
+    font-size: 0.75rem;
   }
   
   .footer-description,
-  .footer-link,
-  .contact-item {
+  .footer-link {
     font-size: 0.9rem;
   }
 }
