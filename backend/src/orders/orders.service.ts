@@ -103,6 +103,11 @@ export class OrdersService {
       throw new ForbiddenException('Only admins can delete orders');
     }
 
+    // First delete order items, then delete the order
+    if (order.orderItems && order.orderItems.length > 0) {
+      await this.orderItemRepository.remove(order.orderItems);
+    }
+
     await this.orderRepository.remove(order);
     return { message: 'Order deleted successfully' };
   }
