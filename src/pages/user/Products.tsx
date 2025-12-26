@@ -5,6 +5,7 @@ import type { Product } from '../../services/products.service';
 import { categoriesService } from '../../services/categories.service';
 import type { Category } from '../../services/categories.service';
 import { ordersService } from '../../services/orders.service';
+import { useNotification } from '../../context/NotificationContext';
 import './User.css';
 
 /**
@@ -19,6 +20,7 @@ const Products: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<Array<{ productId: number; quantity: number }>>([]);
   const [showCart, setShowCart] = useState(false);
+  const { success, error, warning } = useNotification();
 
   const loadData = useCallback(async () => {
     try {
@@ -86,7 +88,7 @@ const Products: React.FC = () => {
 
   const handleCheckout = async () => {
     if (cart.length === 0) {
-      alert('Sepetiniz boş!');
+      warning('Sepetiniz boş!');
       return;
     }
 
@@ -94,9 +96,9 @@ const Products: React.FC = () => {
       await ordersService.create({ items: cart });
       setCart([]);
       setShowCart(false);
-      alert('Siparişiniz başarıyla oluşturuldu!');
-    } catch (error: any) {
-      alert(error.response?.data?.message || 'Sipariş oluşturulurken hata oluştu');
+      success('Siparişiniz başarıyla oluşturuldu!');
+    } catch (err: any) {
+      error(err.response?.data?.message || 'Sipariş oluşturulurken hata oluştu');
     }
   };
 

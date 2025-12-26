@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 import { ordersService } from '../services/orders.service';
 import { productsService } from '../services/products.service';
 import { categoriesService } from '../services/categories.service';
@@ -13,6 +14,7 @@ const GalleryDetail: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
+  const { success, error, warning } = useNotification();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
@@ -106,7 +108,7 @@ const GalleryDetail: React.FC = () => {
   // Sepet fonksiyonları
   const addToCart = (productId: number) => {
     if (!user) {
-      alert('Sepete eklemek için lütfen giriş yapın.');
+      warning('Sepete eklemek için lütfen giriş yapın.');
       navigate('/login');
       return;
     }
@@ -150,7 +152,7 @@ const GalleryDetail: React.FC = () => {
   // Tek ürün satın alma
   const handleBuyClick = (product: Product) => {
     if (!user) {
-      alert('Satın alma işlemi için lütfen giriş yapın.');
+      warning('Satın alma işlemi için lütfen giriş yapın.');
       navigate('/login');
       return;
     }
@@ -162,12 +164,12 @@ const GalleryDetail: React.FC = () => {
   // Sepetten toplu sipariş verme
   const handleCartCheckout = async () => {
     if (cart.length === 0) {
-      alert('Sepetiniz boş!');
+      warning('Sepetiniz boş!');
       return;
     }
 
     if (!user) {
-      alert('Sipariş vermek için lütfen giriş yapın.');
+      warning('Sipariş vermek için lütfen giriş yapın.');
       navigate('/login');
       return;
     }
@@ -176,10 +178,10 @@ const GalleryDetail: React.FC = () => {
       await ordersService.create({ items: cart });
       setCart([]);
       setShowCart(false);
-      alert('Siparişiniz başarıyla oluşturuldu!');
+      success('Siparişiniz başarıyla oluşturuldu!');
       navigate('/user/orders');
-    } catch (error: any) {
-      alert(error.response?.data?.message || 'Sipariş oluşturulurken bir hata oluştu.');
+    } catch (err: any) {
+      error(err.response?.data?.message || 'Sipariş oluşturulurken bir hata oluştu.');
     }
   };
 
@@ -199,7 +201,7 @@ const GalleryDetail: React.FC = () => {
         }]
       });
 
-      alert('Siparişiniz başarıyla oluşturuldu!');
+      success('Siparişiniz başarıyla oluşturuldu!');
       setShowPaymentModal(false);
       setSelectedProduct(null);
       setQuantity(1);
@@ -215,8 +217,8 @@ const GalleryDetail: React.FC = () => {
       
       // Siparişlerim sayfasına yönlendir
       navigate('/user/orders');
-    } catch (error: any) {
-      alert(error.response?.data?.message || 'Sipariş oluşturulurken bir hata oluştu.');
+    } catch (err: any) {
+      error(err.response?.data?.message || 'Sipariş oluşturulurken bir hata oluştu.');
     } finally {
       setIsProcessing(false);
     }

@@ -4,6 +4,9 @@ import { productsService } from '../../services/products.service';
 import type { Product } from '../../services/products.service';
 import { categoriesService } from '../../services/categories.service';
 import type { Category } from '../../services/categories.service';
+import { useNotification } from '../../context/NotificationContext';
+import { useConfirm } from '../../hooks/useConfirm';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 import './Admin.css';
 
 /**
@@ -24,6 +27,8 @@ const Products: React.FC = () => {
     imageUrl: '',
     categoryId: '',
   });
+  const { success, error } = useNotification();
+  const { confirm, confirmState, handleCancel } = useConfirm();
 
   useEffect(() => {
     loadData();
@@ -60,9 +65,10 @@ const Products: React.FC = () => {
       setShowModal(false);
       setEditingProduct(null);
       setFormData({ name: '', description: '', price: '', imageUrl: '', categoryId: '' });
+      success(editingProduct ? 'Ürün başarıyla güncellendi' : 'Ürün başarıyla eklendi');
       loadData();
-    } catch (error: any) {
-      alert(error.response?.data?.message || 'İşlem başarısız');
+    } catch (err: any) {
+      error(err.response?.data?.message || 'İşlem başarısız');
     }
   };
 
@@ -79,12 +85,17 @@ const Products: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Bu ürünü silmek istediğinize emin misiniz?')) return;
+    const confirmed = await confirm({
+      title: 'Ürün Sil',
+      message: 'Bu ürünü silmek istediğinize emin misiniz?',
+    });
+    if (!confirmed) return;
     try {
       await productsService.delete(id);
+      success('Ürün başarıyla silindi');
       loadData();
-    } catch (error: any) {
-      alert(error.response?.data?.message || 'Silme işlemi başarısız');
+    } catch (err: any) {
+      error(err.response?.data?.message || 'Silme işlemi başarısız');
     }
   };
 
@@ -201,6 +212,17 @@ const Products: React.FC = () => {
             </form>
           </div>
         </div>
+      )}
+      {confirmState && (
+        <ConfirmDialog
+          isOpen={confirmState.isOpen}
+          title={confirmState.title}
+          message={confirmState.message}
+          confirmText={confirmState.confirmText}
+          cancelText={confirmState.cancelText}
+          onConfirm={confirmState.onConfirm}
+          onCancel={confirmState.onCancel}
+        />
       )}
     </div>
   );

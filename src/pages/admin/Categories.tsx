@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { categoriesService } from '../../services/categories.service';
 import type { Category } from '../../services/categories.service';
+import { useNotification } from '../../context/NotificationContext';
+import { useConfirm } from '../../hooks/useConfirm';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 import './Admin.css';
 
 /**
@@ -15,6 +18,8 @@ const Categories: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [formData, setFormData] = useState({ name: '', description: '' });
+  const { success, error } = useNotification();
+  const { confirm, confirmState, handleCancel } = useConfirm();
 
   useEffect(() => {
     loadCategories();
@@ -42,9 +47,10 @@ const Categories: React.FC = () => {
       setShowModal(false);
       setEditingCategory(null);
       setFormData({ name: '', description: '' });
+      success(editingCategory ? 'Kategori başarıyla güncellendi' : 'Kategori başarıyla eklendi');
       loadCategories();
-    } catch (error: any) {
-      alert(error.response?.data?.message || 'İşlem başarısız');
+    } catch (err: any) {
+      error(err.response?.data?.message || 'İşlem başarısız');
     }
   };
 
@@ -55,12 +61,17 @@ const Categories: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Bu kategoriyi silmek istediğinize emin misiniz?')) return;
+    const confirmed = await confirm({
+      title: 'Kategori Sil',
+      message: 'Bu kategoriyi silmek istediğinize emin misiniz?',
+    });
+    if (!confirmed) return;
     try {
       await categoriesService.delete(id);
+      success('Kategori başarıyla silindi');
       loadCategories();
-    } catch (error: any) {
-      alert(error.response?.data?.message || 'Silme işlemi başarısız');
+    } catch (err: any) {
+      error(err.response?.data?.message || 'Silme işlemi başarısız');
     }
   };
 
@@ -134,6 +145,17 @@ const Categories: React.FC = () => {
             </form>
           </div>
         </div>
+      )}
+      {confirmState && (
+        <ConfirmDialog
+          isOpen={confirmState.isOpen}
+          title={confirmState.title}
+          message={confirmState.message}
+          confirmText={confirmState.confirmText}
+          cancelText={confirmState.cancelText}
+          onConfirm={confirmState.onConfirm}
+          onCancel={confirmState.onCancel}
+        />
       )}
     </div>
   );
