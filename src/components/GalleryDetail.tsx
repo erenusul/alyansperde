@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useNotification } from '../context/NotificationContext';
 import { ordersService } from '../services/orders.service';
 import { productsService } from '../services/products.service';
 import { categoriesService } from '../services/categories.service';
@@ -14,7 +13,6 @@ const GalleryDetail: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
-  const { success, error, warning } = useNotification();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
@@ -40,26 +38,11 @@ const GalleryDetail: React.FC = () => {
   });
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const loadData = useCallback(async () => {
-    try {
-      const [categoriesData, productsData] = await Promise.all([
-        categoriesService.getAll(),
-        productsService.getAll()
-      ]);
-      setCategories(categoriesData);
-      setProducts(productsData);
-    } catch (error) {
-      console.error('Veriler yüklenirken hata:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
     // Sayfa yüklendiğinde en üste scroll yap
     window.scrollTo(0, 0);
     loadData();
-  }, [loadData]);
+  }, []);
 
   useEffect(() => {
     // URL'den category parametresini oku ve kategori ID'sine çevir
@@ -90,25 +73,56 @@ const GalleryDetail: React.FC = () => {
     }
   }, [searchParams, category, categories]);
 
-  const filteredProducts = useMemo(() => {
-    return products.filter(product => {
-      const matchesCategory = selectedCategoryId === null || product.categoryId === selectedCategoryId;
-      const matchesSearch = searchTerm === '' || 
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase()));
-      return matchesCategory && matchesSearch;
-    });
-  }, [products, selectedCategoryId, searchTerm]);
+  useEffect(() => {
+    loadProducts();
+  }, [selectedCategoryId]);
 
-  const categoryFilters = useMemo(() => [
+  const loadData = async () => {
+    try {
+      const [categoriesData, productsData] = await Promise.all([
+        categoriesService.getAll(),
+        productsService.getAll()
+      ]);
+      setCategories(categoriesData);
+      setProducts(productsData);
+    } catch (error) {
+      console.error('Veriler yüklenirken hata:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadProducts = async () => {
+    try {
+      setLoading(true);
+      const data = selectedCategoryId
+        ? await productsService.getAll(selectedCategoryId)
+        : await productsService.getAll();
+      setProducts(data);
+    } catch (error) {
+      console.error('Ürünler yüklenirken hata:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredProducts = products.filter(product => {
+    const matchesCategory = selectedCategoryId === null || product.categoryId === selectedCategoryId;
+    const matchesSearch = searchTerm === '' || 
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase()));
+    return matchesCategory && matchesSearch;
+  });
+
+  const categoryFilters = [
     { value: null, label: 'Tüm Kategoriler' },
     ...categories.map(cat => ({ value: cat.id, label: cat.name }))
-  ], [categories]);
+  ];
 
   // Sepet fonksiyonları
   const addToCart = (productId: number) => {
     if (!user) {
-      warning('Sepete eklemek için lütfen giriş yapın.');
+      alert('Sepete eklemek için lütfen giriş yapın.');
       navigate('/login');
       return;
     }
@@ -152,7 +166,7 @@ const GalleryDetail: React.FC = () => {
   // Tek ürün satın alma
   const handleBuyClick = (product: Product) => {
     if (!user) {
-      warning('Satın alma işlemi için lütfen giriş yapın.');
+      alert('Satın alma işlemi için lütfen giriş yapın.');
       navigate('/login');
       return;
     }
@@ -164,12 +178,12 @@ const GalleryDetail: React.FC = () => {
   // Sepetten toplu sipariş verme
   const handleCartCheckout = async () => {
     if (cart.length === 0) {
-      warning('Sepetiniz boş!');
+      alert('Sepetiniz boş!');
       return;
     }
 
     if (!user) {
-      warning('Sipariş vermek için lütfen giriş yapın.');
+      alert('Sipariş vermek için lütfen giriş yapın.');
       navigate('/login');
       return;
     }
@@ -178,10 +192,10 @@ const GalleryDetail: React.FC = () => {
       await ordersService.create({ items: cart });
       setCart([]);
       setShowCart(false);
-      success('Siparişiniz başarıyla oluşturuldu!');
+      alert('Siparişiniz başarıyla oluşturuldu!');
       navigate('/user/orders');
-    } catch (err: any) {
-      error(err.response?.data?.message || 'Sipariş oluşturulurken bir hata oluştu.');
+    } catch (error: any) {
+      alert(error.response?.data?.message || 'Sipariş oluşturulurken bir hata oluştu.');
     }
   };
 
@@ -201,7 +215,7 @@ const GalleryDetail: React.FC = () => {
         }]
       });
 
-      success('Siparişiniz başarıyla oluşturuldu!');
+      alert('Siparişiniz başarıyla oluşturuldu!');
       setShowPaymentModal(false);
       setSelectedProduct(null);
       setQuantity(1);
@@ -217,8 +231,8 @@ const GalleryDetail: React.FC = () => {
       
       // Siparişlerim sayfasına yönlendir
       navigate('/user/orders');
-    } catch (err: any) {
-      error(err.response?.data?.message || 'Sipariş oluşturulurken bir hata oluştu.');
+    } catch (error: any) {
+      alert(error.response?.data?.message || 'Sipariş oluşturulurken bir hata oluştu.');
     } finally {
       setIsProcessing(false);
     }
@@ -273,83 +287,84 @@ const GalleryDetail: React.FC = () => {
           <div className="no-results">
             <p>Yükleniyor...</p>
           </div>
-        ) : filteredProducts.length === 0 ? (
-          <div className="no-results">
-            <p>Arama kriterlerinize uygun ürün bulunamadı.</p>
-          </div>
         ) : (
-          <div className="gallery-detail-grid">
-            {filteredProducts.map((product) => (
-              <div key={product.id} className="gallery-detail-item">
-                <div className="gallery-detail-image-container">
-                  <img 
-                    src={product.imageUrl || "/perdeopt.png"} 
-                    alt={product.name}
-                    className="gallery-detail-image"
-                  />
-                </div>
-                <div className="gallery-detail-content">
-                  <h3 className="gallery-detail-item-title">{product.name}</h3>
-                  <p className="gallery-detail-item-description">{product.description || ''}</p>
-                  <div className="price-section">
-                    <span className="price-label">Fiyat:</span>
-                    <span className="price-value">₺{Number(product.price).toFixed(2)}</span>
+          <>
+            <div className="gallery-detail-grid">
+              {filteredProducts.map((product) => (
+                <div key={product.id} className="gallery-detail-item">
+                  <div className="gallery-detail-image-container">
+                    <img 
+                      src={product.imageUrl || "/perdeopt.png"} 
+                      alt={product.name}
+                      className="gallery-detail-image"
+                    />
                   </div>
-                  {product.category && (
-                    <div className="features-section">
-                      <h4 className="features-title">Kategori:</h4>
-                      <p className="feature-item">{product.category.name}</p>
+                  <div className="gallery-detail-content">
+                    <h3 className="gallery-detail-item-title">{product.name}</h3>
+                    <p className="gallery-detail-item-description">{product.description || ''}</p>
+                    <div className="price-section">
+                      <span className="price-label">Fiyat:</span>
+                      <span className="price-value">₺{Number(product.price).toFixed(2)}</span>
                     </div>
-                  )}
-                    {user && (() => {
-                      const cartItem = cart.find(item => item.productId === product.id);
-                      return (
-                        <div className="product-actions">
-                          {cartItem ? (
-                            <div className="cart-controls">
-                              <button 
-                                onClick={() => updateCartQuantity(product.id, cartItem.quantity - 1)}
-                                className="quantity-btn"
-                              >
-                                -
-                              </button>
-                              <span className="quantity-value">{cartItem.quantity}</span>
-                              <button 
-                                onClick={() => updateCartQuantity(product.id, cartItem.quantity + 1)}
-                                className="quantity-btn"
-                              >
-                                +
-                              </button>
-                              <button 
-                                onClick={() => removeFromCart(product.id)}
-                                className="remove-btn"
-                              >
-                                Kaldır
-                              </button>
-                            </div>
-                          ) : (
-                            <>
-                              <button 
-                                className="contact-btn buy-btn"
-                                onClick={() => addToCart(product.id)}
-                              >
-                                Sepete Ekle
-                              </button>
-                              <button 
-                                className="contact-btn buy-btn"
-                                onClick={() => handleBuyClick(product)}
-                              >
-                                Hemen Al
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      );
-                    })()}
+                    {product.category && (
+                      <div className="features-section">
+                        <h4 className="features-title">Kategori:</h4>
+                        <p className="feature-item">{product.category.name}</p>
+                      </div>
+                    )}
+                    {user && (
+                      <div className="product-actions">
+                        {cart.find(item => item.productId === product.id) ? (
+                          <div className="cart-controls">
+                            <button 
+                              onClick={() => updateCartQuantity(product.id, cart.find(item => item.productId === product.id)!.quantity - 1)}
+                              className="quantity-btn"
+                            >
+                              -
+                            </button>
+                            <span className="quantity-value">{cart.find(item => item.productId === product.id)!.quantity}</span>
+                            <button 
+                              onClick={() => updateCartQuantity(product.id, cart.find(item => item.productId === product.id)!.quantity + 1)}
+                              className="quantity-btn"
+                            >
+                              +
+                            </button>
+                            <button 
+                              onClick={() => removeFromCart(product.id)}
+                              className="remove-btn"
+                            >
+                              Kaldır
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <button 
+                              className="contact-btn buy-btn"
+                              onClick={() => addToCart(product.id)}
+                            >
+                              Sepete Ekle
+                            </button>
+                            <button 
+                              className="contact-btn buy-btn"
+                              onClick={() => handleBuyClick(product)}
+                            >
+                              Hemen Al
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
+              ))}
+            </div>
+
+            {filteredProducts.length === 0 && !loading && (
+              <div className="no-results">
+                <p>Arama kriterlerinize uygun ürün bulunamadı.</p>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
 

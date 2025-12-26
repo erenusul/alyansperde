@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { productsService } from '../../services/products.service';
 import type { Product } from '../../services/products.service';
 import { categoriesService } from '../../services/categories.service';
 import type { Category } from '../../services/categories.service';
 import { ordersService } from '../../services/orders.service';
-import { useNotification } from '../../context/NotificationContext';
 import './User.css';
 
 /**
@@ -20,40 +19,37 @@ const Products: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<Array<{ productId: number; quantity: number }>>([]);
   const [showCart, setShowCart] = useState(false);
-  const { success, error, warning } = useNotification();
 
-  const loadData = useCallback(async () => {
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    loadProducts();
+  }, [selectedCategory]);
+
+  const loadData = async () => {
     try {
       const categoriesData = await categoriesService.getAll();
       setCategories(categoriesData);
     } catch (error) {
       console.error('Kategoriler yüklenirken hata:', error);
     }
-  }, []);
+  };
 
-  const loadProducts = useCallback(async () => {
+  const loadProducts = async () => {
     try {
       setLoading(true);
-      const data = await productsService.getAll();
+      const data = selectedCategory
+        ? await productsService.getAll(selectedCategory)
+        : await productsService.getAll();
       setProducts(data);
     } catch (error) {
       console.error('Ürünler yüklenirken hata:', error);
     } finally {
       setLoading(false);
     }
-  }, []);
-
-  useEffect(() => {
-    loadData();
-    loadProducts();
-  }, [loadData, loadProducts]);
-
-  const filteredProducts = useMemo(() => {
-    if (selectedCategory === null) {
-      return products;
-    }
-    return products.filter(product => product.categoryId === selectedCategory);
-  }, [products, selectedCategory]);
+  };
 
   const addToCart = (productId: number) => {
     const existingItem = cart.find((item) => item.productId === productId);
@@ -88,7 +84,7 @@ const Products: React.FC = () => {
 
   const handleCheckout = async () => {
     if (cart.length === 0) {
-      warning('Sepetiniz boş!');
+      alert('Sepetiniz boş!');
       return;
     }
 
@@ -96,18 +92,18 @@ const Products: React.FC = () => {
       await ordersService.create({ items: cart });
       setCart([]);
       setShowCart(false);
-      success('Siparişiniz başarıyla oluşturuldu!');
-    } catch (err: any) {
-      error(err.response?.data?.message || 'Sipariş oluşturulurken hata oluştu');
+      alert('Siparişiniz başarıyla oluşturuldu!');
+    } catch (error: any) {
+      alert(error.response?.data?.message || 'Sipariş oluşturulurken hata oluştu');
     }
   };
 
-  const getCartTotal = useMemo(() => {
+  const getCartTotal = () => {
     return cart.reduce((total, item) => {
       const product = products.find((p) => p.id === item.productId);
       return total + (product ? Number(product.price) * item.quantity : 0);
     }, 0);
-  }, [cart, products]);
+  };
 
   if (loading) return <div className="user-container">Yükleniyor...</div>;
 
@@ -140,7 +136,7 @@ const Products: React.FC = () => {
       </div>
 
       <div className="products-grid">
-        {filteredProducts.map((product) => {
+        {products.map((product) => {
           const cartItem = cart.find((item) => item.productId === product.id);
           return (
             <div key={product.id} className="product-card">
@@ -194,7 +190,7 @@ const Products: React.FC = () => {
                   })}
                 </div>
                 <div className="cart-total">
-                  <strong>Toplam: {getCartTotal.toFixed(2)} ₺</strong>
+                  <strong>Toplam: {getCartTotal().toFixed(2)} ₺</strong>
                 </div>
                 <div className="modal-actions">
                   <button onClick={handleCheckout}>Sipariş Ver</button>

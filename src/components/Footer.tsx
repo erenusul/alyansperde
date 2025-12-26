@@ -7,8 +7,11 @@ const Footer: React.FC = () => {
       <div className="footer-container">
         <div className="footer-content">
           <div className="footer-section">
-            <h3 className="footer-title">ALYANS PERDE</h3>
-        
+            <img 
+              src="/alyansperdegorselleroptimize/Alyans_Perde_Yazısı.png" 
+              alt="ALYANS PERDE" 
+              className="footer-logo"
+            />
           </div>
           
           

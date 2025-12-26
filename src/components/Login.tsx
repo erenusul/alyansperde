@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useNotification } from '../context/NotificationContext';
 import './Login.css';
 
 const Login: React.FC = () => {
@@ -10,7 +9,6 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
-  const { error: showError } = useNotification();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,7 +22,6 @@ const Login: React.FC = () => {
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || err.message || 'Giriş başarısız. Lütfen email ve şifrenizi kontrol edin.';
       setError(errorMessage);
-      showError(errorMessage);
       console.error('Login error:', err);
     } finally {
       setIsLoading(false);

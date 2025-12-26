@@ -23,9 +23,11 @@ const Hero: React.FC = () => {
         />
       </div>
       <div className="hero-content">
-        <h1 className={`hero-title ${showText ? 'loaded' : ''}`}>
-          ALYANS PERDE
-        </h1>
+        <img 
+          src="/alyansperdegorselleroptimize/Alyans_Perde_Yazısı.png" 
+          alt="ALYANS PERDE" 
+          className={`hero-title ${showText ? 'loaded' : ''}`}
+        />
       </div>
     </section>
   );
