@@ -1,7 +1,10 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { GetUser } from './decorators/get-user.decorator';
+import { User } from '../entities/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -27,6 +30,19 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
+  }
+
+  /**
+   * Token doğrulama ve kullanıcı bilgilerini getirme endpoint'i
+   * GET /auth/me
+   * JWT token'ı doğrular ve mevcut kullanıcının bilgilerini döner
+   */
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getMe(@GetUser() user: User) {
+    const { password, ...result } = user;
+    return result;
   }
 }
 

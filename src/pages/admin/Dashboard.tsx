@@ -17,11 +17,11 @@ const Dashboard: React.FC = () => {
       <div className="admin-grid">
         <Link to="/admin/categories" className="admin-card">
           <h2>Kategoriler</h2>
-          <p>Kategori yönetimi </p>
+          <p>Kategori yönetimi</p>
         </Link>
         <Link to="/admin/products" className="admin-card">
           <h2>Ürünler</h2>
-          <p>Ürün yönetimi </p>
+          <p>Ürün yönetimi</p>
         </Link>
         <Link to="/admin/orders" className="admin-card">
           <h2>Siparişler</h2>

@@ -39,6 +39,21 @@ export const authService = {
     return response.data;
   },
 
+  async verifyToken(): Promise<User | null> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return null;
+      }
+      const response = await api.get<User>('/auth/me');
+      return response.data;
+    } catch (error) {
+      // Token geçersizse localStorage'ı temizle
+      this.logout();
+      return null;
+    }
+  },
+
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');

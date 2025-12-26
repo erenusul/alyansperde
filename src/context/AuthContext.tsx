@@ -30,11 +30,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const currentUser = authService.getCurrentUser();
-    if (currentUser && authService.isAuthenticated()) {
-      setUser(currentUser);
-    }
-    setIsLoading(false);
+    const checkAuth = async () => {
+      const token = authService.getToken();
+      if (token) {
+        // Token varsa backend'de geçerliliğini kontrol et
+        const verifiedUser = await authService.verifyToken();
+        if (verifiedUser) {
+          // Token geçerliyse kullanıcı bilgilerini güncelle
+          localStorage.setItem('user', JSON.stringify(verifiedUser));
+          setUser(verifiedUser);
+        } else {
+          // Token geçersizse kullanıcıyı temizle
+          setUser(null);
+        }
+      }
+      setIsLoading(false);
+    };
+
+    checkAuth();
   }, []);
 
   const saveUserData = useCallback((response: { accessToken: string; id: number; email: string; name: string; role: UserRole }) => {
