@@ -371,6 +371,7 @@
 @media (max-width: 768px) {
   .admin-container {
     padding: 3rem 1.5rem;
+    overflow-x: visible;
   }
   
   .admin-header {
@@ -393,12 +394,73 @@
   }
   
   .admin-table {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .admin-table thead {
+    display: table-header-group;
+  }
+  
+  .admin-table tbody {
+    display: table-row-group;
   }
   
   .admin-table th,
   .admin-table td {
-    padding: 0.8rem 0.5rem;
+    padding: 0.6rem 0.4rem;
+    white-space: nowrap;
+    min-width: 80px;
+  }
+  
+  .admin-table th:nth-child(1),
+  .admin-table td:nth-child(1) {
+    min-width: 50px;
+  }
+  
+  .admin-table th:nth-child(2),
+  .admin-table td:nth-child(2) {
+    min-width: 100px;
+  }
+  
+  .admin-table th:nth-child(3),
+  .admin-table td:nth-child(3) {
+    min-width: 150px;
+    white-space: normal;
+  }
+  
+  .admin-table th:nth-child(4),
+  .admin-table td:nth-child(4) {
+    min-width: 90px;
+  }
+  
+  .admin-table th:nth-child(5),
+  .admin-table td:nth-child(5) {
+    min-width: 120px;
+  }
+  
+  .admin-table th:nth-child(6),
+  .admin-table td:nth-child(6) {
+    min-width: 90px;
+  }
+  
+  .admin-table th:nth-child(7),
+  .admin-table td:nth-child(7) {
+    min-width: 80px;
+  }
+  
+  .admin-table select {
+    font-size: 0.8rem;
+    padding: 4px 6px;
+    min-width: 100px;
+  }
+  
+  .admin-table button {
+    padding: 5px 10px;
+    font-size: 0.75rem;
   }
   
   .modal-content {
@@ -417,6 +479,7 @@
 @media (max-width: 480px) {
   .admin-container {
     padding: 2rem 1rem;
+    overflow-x: visible;
   }
   
   .admin-header h1 {
@@ -433,17 +496,73 @@
   }
   
   .admin-table {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .admin-table thead {
+    display: table-header-group;
+  }
+  
+  .admin-table tbody {
+    display: table-row-group;
   }
   
   .admin-table th,
   .admin-table td {
-    padding: 0.6rem 0.4rem;
+    padding: 0.5rem 0.3rem;
+    white-space: nowrap;
+    min-width: 70px;
+  }
+  
+  .admin-table th:nth-child(1),
+  .admin-table td:nth-child(1) {
+    min-width: 40px;
+  }
+  
+  .admin-table th:nth-child(2),
+  .admin-table td:nth-child(2) {
+    min-width: 90px;
+  }
+  
+  .admin-table th:nth-child(3),
+  .admin-table td:nth-child(3) {
+    min-width: 130px;
+    white-space: normal;
+  }
+  
+  .admin-table th:nth-child(4),
+  .admin-table td:nth-child(4) {
+    min-width: 80px;
+  }
+  
+  .admin-table th:nth-child(5),
+  .admin-table td:nth-child(5) {
+    min-width: 110px;
+  }
+  
+  .admin-table th:nth-child(6),
+  .admin-table td:nth-child(6) {
+    min-width: 80px;
+  }
+  
+  .admin-table th:nth-child(7),
+  .admin-table td:nth-child(7) {
+    min-width: 70px;
+  }
+  
+  .admin-table select {
+    font-size: 0.7rem;
+    padding: 3px 5px;
+    min-width: 90px;
   }
   
   .admin-table button {
-    padding: 6px 12px;
-    font-size: 0.8rem;
+    padding: 4px 8px;
+    font-size: 0.7rem;
     margin-right: 0.3rem;
   }
   
