@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHome } from '@fortawesome/free-solid-svg-icons';
 import { ordersService } from '../../services/orders.service';
 import type { Order } from '../../services/orders.service';
 import './User.css';
@@ -62,7 +64,9 @@ const MyOrders: React.FC = () => {
 
   return (
     <div className="user-container">
-      <Link to="/#galeri" className="back-to-home-btn">← Ana Sayfa</Link>
+      <Link to="/#galeri" className="back-to-home-btn">
+        <FontAwesomeIcon icon={faHome} /> Ana Sayfa
+      </Link>
       <div className="user-header">
         <h1>Siparişlerim</h1>
       </div>

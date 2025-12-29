@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { Order } from './order.entity';
+import { Favorite } from './favorite.entity';
 
 export enum UserRole {
   ADMIN = 'ADMIN',
@@ -29,6 +30,9 @@ export class User {
 
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
+
+  @OneToMany(() => Favorite, (favorite) => favorite.user)
+  favorites: Favorite[];
 
   @CreateDateColumn()
   createdAt: Date;

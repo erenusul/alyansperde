@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { Category } from './category.entity';
 import { OrderItem } from './order-item.entity';
+import { Favorite } from './favorite.entity';
 
 @Entity('products')
 export class Product {
@@ -28,6 +29,9 @@ export class Product {
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
   orderItems: OrderItem[];
+
+  @OneToMany(() => Favorite, (favorite) => favorite.product)
+  favoritedBy: Favorite[];
 
   @CreateDateColumn()
   createdAt: Date;

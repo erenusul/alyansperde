@@ -11,6 +11,7 @@ import AdminProducts from './pages/admin/Products'
 import Orders from './pages/admin/Orders'
 import MyOrders from './pages/user/MyOrders'
 import Products from './pages/user/Products'
+import Favorites from './pages/user/Favorites'
 import './App.css'
 
 function App() {
@@ -60,6 +61,11 @@ function App() {
       <Route path="/user/products" element={
         <ProtectedRoute requiredRole="USER">
           <Products />
+        </ProtectedRoute>
+      } />
+      <Route path="/user/favorites" element={
+        <ProtectedRoute requiredRole="USER">
+          <Favorites />
         </ProtectedRoute>
       } />
       </Routes>

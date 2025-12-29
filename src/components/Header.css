@@ -132,6 +132,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
   white-space: nowrap;
   cursor: pointer;
 }
@@ -173,6 +174,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
   line-height: 1.5;
   white-space: nowrap;
 }
@@ -186,6 +188,94 @@
   font-weight: 500;
   display: inline-flex;
   align-items: center;
+}
+
+.user-dropdown-wrapper {
+  position: relative;
+}
+
+.user-dropdown-toggle {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0.5rem 1rem;
+  outline: none;
+}
+
+.user-dropdown-toggle:focus {
+  outline: none;
+}
+
+.user-dropdown-toggle:focus-visible {
+  outline: none;
+}
+
+.user-dropdown-toggle:hover {
+  color: #4caf50 !important;
+}
+
+.user-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 150px;
+  background: rgba(44, 44, 44, 1);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  z-index: 1003;
+  overflow: hidden;
+  animation: dropdownFadeIn 0.2s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.user-dropdown-item {
+  display: block;
+  width: 100%;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: white;
+  text-decoration: none;
+  padding: 0.75rem 1.25rem;
+  transition: all 0.2s ease;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.user-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f0f0f0;
+}
+
+.user-dropdown-item.logout-item {
+  background: #f44336;
+  color: white !important;
+}
+
+.user-dropdown-item.logout-item:hover {
+  background: #d32f2f;
+}
+
+/* Mobile: Hide dropdown menu */
+@media (max-width: 768px) {
+  .user-dropdown-menu {
+    display: none !important;
+  }
 }
 
 .logout-btn {
@@ -278,7 +368,9 @@
 }
 
 .mobile-nav-link {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-family: 'Oswald', sans-serif;
   font-size: 0.95rem;
   font-weight: 400;

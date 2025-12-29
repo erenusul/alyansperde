@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faShoppingCart, faHome } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 import { ordersService } from '../services/orders.service';
 import { productsService } from '../services/products.service';
 import { categoriesService } from '../services/categories.service';
+import { favoritesService } from '../services/favorites.service';
 import type { Product } from '../services/products.service';
 import type { Category } from '../services/categories.service';
 import './GalleryDetail.css';
@@ -22,6 +25,9 @@ const GalleryDetail: React.FC = () => {
   // Sepet state'leri
   const [cart, setCart] = useState<Array<{ productId: number; quantity: number }>>([]);
   const [showCart, setShowCart] = useState(false);
+  
+  // Favori state'leri
+  const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
   
   // Tek ürün satın alma state'leri
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -42,7 +48,19 @@ const GalleryDetail: React.FC = () => {
     // Sayfa yüklendiğinde en üste scroll yap
     window.scrollTo(0, 0);
     loadData();
-  }, []);
+    if (user) {
+      loadFavorites();
+    }
+  }, [user]);
+  
+  const loadFavorites = async () => {
+    try {
+      const ids = await favoritesService.getFavoriteIds();
+      setFavoriteIds(ids);
+    } catch (error) {
+      console.error('Favoriler yüklenirken hata:', error);
+    }
+  };
 
   useEffect(() => {
     // URL'den category parametresini oku ve kategori ID'sine çevir
@@ -238,19 +256,42 @@ const GalleryDetail: React.FC = () => {
     }
   };
 
+  const handleToggleFavorite = async (productId: number) => {
+    if (!user) {
+      alert('Favorilere eklemek için giriş yapmalısınız');
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const isFavorite = favoriteIds.includes(productId);
+      if (isFavorite) {
+        await favoritesService.remove(productId);
+        setFavoriteIds(favoriteIds.filter((id) => id !== productId));
+      } else {
+        await favoritesService.add(productId);
+        setFavoriteIds([...favoriteIds, productId]);
+      }
+    } catch (error: any) {
+      alert(error.response?.data?.message || 'İşlem başarısız');
+    }
+  };
+
 
 
   return (
     <div className="gallery-detail">
       <div className="gallery-detail-container">
-        <Link to="/#galeri" className="back-to-home-btn">← Ana Sayfa</Link>
+        <Link to="/#galeri" className="back-to-home-btn">
+          <FontAwesomeIcon icon={faHome} /> Ana Sayfa
+        </Link>
         <div className="gallery-detail-header">
           <h1 className="gallery-detail-title">
             TÜM PERDE ÇEŞİTLERİ
           </h1>
           {user && (
             <button onClick={() => setShowCart(true)} className="cart-button">
-              Sepet ({cart.length})
+              <FontAwesomeIcon icon={faShoppingCart} /> Sepet ({cart.length})
             </button>
           )}
         </div>
@@ -290,73 +331,85 @@ const GalleryDetail: React.FC = () => {
         ) : (
           <>
             <div className="gallery-detail-grid">
-              {filteredProducts.map((product) => (
-                <div key={product.id} className="gallery-detail-item">
-                  <div className="gallery-detail-image-container">
-                    <img 
-                      src={product.imageUrl || "/perdeopt.png"} 
-                      alt={product.name}
-                      className="gallery-detail-image"
-                    />
-                  </div>
-                  <div className="gallery-detail-content">
-                    <h3 className="gallery-detail-item-title">{product.name}</h3>
-                    <p className="gallery-detail-item-description">{product.description || ''}</p>
-                    <div className="price-section">
-                      <span className="price-label">Fiyat:</span>
-                      <span className="price-value">₺{Number(product.price).toFixed(2)}</span>
-                    </div>
-                    {product.category && (
-                      <div className="features-section">
-                        <h4 className="features-title">Kategori:</h4>
-                        <p className="feature-item">{product.category.name}</p>
-                      </div>
-                    )}
+              {filteredProducts.map((product) => {
+                const isFavorite = favoriteIds.includes(product.id);
+                return (
+                  <div key={product.id} className="gallery-detail-item">
                     {user && (
-                      <div className="product-actions">
-                        {cart.find(item => item.productId === product.id) ? (
-                          <div className="cart-controls">
-                            <button 
-                              onClick={() => updateCartQuantity(product.id, cart.find(item => item.productId === product.id)!.quantity - 1)}
-                              className="quantity-btn"
-                            >
-                              -
-                            </button>
-                            <span className="quantity-value">{cart.find(item => item.productId === product.id)!.quantity}</span>
-                            <button 
-                              onClick={() => updateCartQuantity(product.id, cart.find(item => item.productId === product.id)!.quantity + 1)}
-                              className="quantity-btn"
-                            >
-                              +
-                            </button>
-                            <button 
-                              onClick={() => removeFromCart(product.id)}
-                              className="remove-btn"
-                            >
-                              Kaldır
-                            </button>
-                          </div>
-                        ) : (
-                          <>
-                            <button 
-                              className="contact-btn buy-btn"
-                              onClick={() => addToCart(product.id)}
-                            >
-                              Sepete Ekle
-                            </button>
-                            <button 
-                              className="contact-btn buy-btn"
-                              onClick={() => handleBuyClick(product)}
-                            >
-                              Hemen Al
-                            </button>
-                          </>
-                        )}
-                      </div>
+                      <button
+                        className={`favorite-btn ${isFavorite ? 'active' : ''}`}
+                        onClick={() => handleToggleFavorite(product.id)}
+                        title={isFavorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}
+                      >
+                        {isFavorite ? '❤️' : '🤍'}
+                      </button>
                     )}
+                    <div className="gallery-detail-image-container">
+                      <img 
+                        src={product.imageUrl || "/perdeopt.png"} 
+                        alt={product.name}
+                        className="gallery-detail-image"
+                      />
+                    </div>
+                    <div className="gallery-detail-content">
+                      <h3 className="gallery-detail-item-title">{product.name}</h3>
+                      <p className="gallery-detail-item-description">{product.description || ''}</p>
+                      <div className="price-section">
+                        <span className="price-label">Fiyat:</span>
+                        <span className="price-value">₺{Number(product.price).toFixed(2)}</span>
+                      </div>
+                      {product.category && (
+                        <div className="features-section">
+                          <h4 className="features-title">Kategori:</h4>
+                          <p className="feature-item">{product.category.name}</p>
+                        </div>
+                      )}
+                      {user && (
+                        <div className="product-actions">
+                          {cart.find(item => item.productId === product.id) ? (
+                            <div className="cart-controls">
+                              <button 
+                                onClick={() => updateCartQuantity(product.id, cart.find(item => item.productId === product.id)!.quantity - 1)}
+                                className="quantity-btn"
+                              >
+                                -
+                              </button>
+                              <span className="quantity-value">{cart.find(item => item.productId === product.id)!.quantity}</span>
+                              <button 
+                                onClick={() => updateCartQuantity(product.id, cart.find(item => item.productId === product.id)!.quantity + 1)}
+                                className="quantity-btn"
+                              >
+                                +
+                              </button>
+                              <button 
+                                onClick={() => removeFromCart(product.id)}
+                                className="remove-btn"
+                              >
+                                Kaldır
+                              </button>
+                            </div>
+                          ) : (
+                            <>
+                              <button 
+                                className="contact-btn buy-btn"
+                                onClick={() => addToCart(product.id)}
+                              >
+                                Sepete Ekle
+                              </button>
+                              <button 
+                                className="contact-btn buy-btn"
+                                onClick={() => handleBuyClick(product)}
+                              >
+                                Hemen Al
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {filteredProducts.length === 0 && !loading && (

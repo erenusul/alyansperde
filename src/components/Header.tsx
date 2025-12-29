@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHome } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 import './Header.css';
 
 const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -50,10 +53,29 @@ const Header: React.FC = () => {
     };
   }, [isMobileMenuOpen]);
 
+  useEffect(() => {
+    // User dropdown dışına tıklanınca kapat
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.user-dropdown-wrapper')) {
+        setIsUserDropdownOpen(false);
+      }
+    };
+
+    if (isUserDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isUserDropdownOpen]);
+
   const handleLogout = () => {
     logout();
     navigate('/');
     setIsMobileMenuOpen(false);
+    setIsUserDropdownOpen(false);
   };
 
   const handleMobileMenuClick = () => {
@@ -146,7 +168,9 @@ const Header: React.FC = () => {
               </>
             ) : (
               <li className="mobile-nav-item">
-                <Link to="/" className="mobile-nav-link" onClick={handleMobileLinkClick}>Ana Sayfa</Link>
+                <Link to="/" className="mobile-nav-link" onClick={handleMobileLinkClick}>
+                  <FontAwesomeIcon icon={faHome} /> Ana Sayfa
+                </Link>
               </li>
             )}
             {user ? (
@@ -160,6 +184,9 @@ const Header: React.FC = () => {
                   <>
                     <li className="mobile-nav-item">
                       <Link to="/galeri" className="mobile-nav-link" onClick={handleMobileLinkClick}>Ürünler</Link>
+                    </li>
+                    <li className="mobile-nav-item">
+                      <Link to="/user/favorites" className="mobile-nav-link" onClick={handleMobileLinkClick}>Favorilerim</Link>
                     </li>
                     <li className="mobile-nav-item">
                       <Link to="/user/orders" className="mobile-nav-link" onClick={handleMobileLinkClick}>Siparişler</Link>
@@ -190,7 +217,7 @@ const Header: React.FC = () => {
           <div className="logo">
             {!isHomePage && (
               <Link to="/" className="home-link desktop-only">
-                ← Ana Sayfa
+                <FontAwesomeIcon icon={faHome} /> Ana Sayfa
               </Link>
             )}
             <img 
@@ -281,7 +308,9 @@ const Header: React.FC = () => {
                 </>
               ) : (
                 <li className="nav-item">
-                  <Link to="/" className="nav-link">Ana Sayfa</Link>
+                  <Link to="/" className="nav-link">
+                    <FontAwesomeIcon icon={faHome} /> Ana Sayfa
+                  </Link>
                 </li>
               )}
               {user ? (
@@ -297,15 +326,30 @@ const Header: React.FC = () => {
                         <Link to="/galeri" className="nav-link">Ürünler</Link>
                       </li>
                       <li className="nav-item">
+                        <Link to="/user/favorites" className="nav-link">Favorilerim</Link>
+                      </li>
+                      <li className="nav-item">
                         <Link to="/user/orders" className="nav-link">Siparişlerim</Link>
                       </li>
                     </>
                   )}
-                  <li className="nav-item">
-                    <span className="nav-link user-name">{user.name}</span>
-                  </li>
-                  <li className="nav-item">
-                    <button onClick={handleLogout} className="nav-link logout-btn">Çıkış</button>
+                  <li className="nav-item user-dropdown-wrapper">
+                    <button 
+                      onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+                      className="nav-link user-name user-dropdown-toggle"
+                    >
+                      {user.name}
+                    </button>
+                    {isUserDropdownOpen && (
+                      <div className="user-dropdown-menu">
+                        <button 
+                          onClick={handleLogout} 
+                          className="user-dropdown-item logout-item"
+                        >
+                          Çıkış
+                        </button>
+                      </div>
+                    )}
                   </li>
                 </>
               ) : (

@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHome } from '@fortawesome/free-solid-svg-icons';
 import { productsService } from '../../services/products.service';
 import type { Product } from '../../services/products.service';
 import { categoriesService } from '../../services/categories.service';
 import type { Category } from '../../services/categories.service';
 import { ordersService } from '../../services/orders.service';
+import { favoritesService } from '../../services/favorites.service';
+import { useAuth } from '../../context/AuthContext';
 import './User.css';
 
 /**
@@ -19,14 +23,28 @@ const Products: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<Array<{ productId: number; quantity: number }>>([]);
   const [showCart, setShowCart] = useState(false);
+  const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
+  const { user } = useAuth();
 
   useEffect(() => {
     loadData();
-  }, []);
+    if (user) {
+      loadFavorites();
+    }
+  }, [user]);
 
   useEffect(() => {
     loadProducts();
   }, [selectedCategory]);
+
+  const loadFavorites = async () => {
+    try {
+      const ids = await favoritesService.getFavoriteIds();
+      setFavoriteIds(ids);
+    } catch (error) {
+      console.error('Favoriler yüklenirken hata:', error);
+    }
+  };
 
   const loadData = async () => {
     try {
@@ -105,11 +123,33 @@ const Products: React.FC = () => {
     }, 0);
   };
 
+  const handleToggleFavorite = async (productId: number) => {
+    if (!user) {
+      alert('Favorilere eklemek için giriş yapmalısınız');
+      return;
+    }
+
+    try {
+      const isFavorite = favoriteIds.includes(productId);
+      if (isFavorite) {
+        await favoritesService.remove(productId);
+        setFavoriteIds(favoriteIds.filter((id) => id !== productId));
+      } else {
+        await favoritesService.add(productId);
+        setFavoriteIds([...favoriteIds, productId]);
+      }
+    } catch (error: any) {
+      alert(error.response?.data?.message || 'İşlem başarısız');
+    }
+  };
+
   if (loading) return <div className="user-container">Yükleniyor...</div>;
 
   return (
     <div className="user-container">
-      <Link to="/#galeri" className="back-to-home-btn">← Ana Sayfa</Link>
+      <Link to="/#galeri" className="back-to-home-btn">
+        <FontAwesomeIcon icon={faHome} /> Ana Sayfa
+      </Link>
       <div className="user-header">
         <h1>Ürünler</h1>
         <button onClick={() => setShowCart(true)} className="cart-button">
@@ -138,8 +178,18 @@ const Products: React.FC = () => {
       <div className="products-grid">
         {products.map((product) => {
           const cartItem = cart.find((item) => item.productId === product.id);
+          const isFavorite = favoriteIds.includes(product.id);
           return (
             <div key={product.id} className="product-card">
+              {user && (
+                <button
+                  className={`favorite-btn ${isFavorite ? 'active' : ''}`}
+                  onClick={() => handleToggleFavorite(product.id)}
+                  title={isFavorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}
+                >
+                  {isFavorite ? '❤️' : '🤍'}
+                </button>
+              )}
               {product.imageUrl && (
                 <img src={product.imageUrl} alt={product.name} />
               )}

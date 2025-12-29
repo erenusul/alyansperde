@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHome } from '@fortawesome/free-solid-svg-icons';
 import './Admin.css';
 
 /**
@@ -10,7 +12,9 @@ import './Admin.css';
 const Dashboard: React.FC = () => {
   return (
     <div className="admin-container">
-      <Link to="/" className="admin-back-home">← Ana Sayfa</Link>
+      <Link to="/" className="admin-back-home">
+        <FontAwesomeIcon icon={faHome} /> Ana Sayfa
+      </Link>
       <div className="admin-header">
         <h1>Admin Paneli</h1>
       </div>

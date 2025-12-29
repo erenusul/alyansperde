@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHome } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 import './Login.css';
 
@@ -31,7 +33,9 @@ const Login: React.FC = () => {
   return (
     <div className="login-container">
       <div className="login-box">
-        <Link to="/" className="back-to-home">← Ana Sayfaya Dön</Link>
+        <Link to="/" className="back-to-home">
+          <FontAwesomeIcon icon={faHome} /> Ana Sayfaya Dön
+        </Link>
         <h2>Giriş Yap</h2>
         {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleSubmit}>
