@@ -4,6 +4,29 @@ React (Frontend) + NestJS (Backend) ile geliştirilmiş perde satış ve yöneti
 
 ## Proje Yapısı
 
+```
+alyanstsxson1/
+├── backend/          # NestJS Backend API
+│   ├── src/
+│   │   ├── entities/    # Veritabanı entity'leri
+│   │   ├── auth/        # Authentication modülü
+│   │   ├── categories/  # Kategori modülü
+│   │   ├── products/    # Ürün modülü
+│   │   ├── orders/      # Sipariş modülü
+│   │   ├── favorites/   # Favori modülü
+│   │   └── users/       # Kullanıcı modülü
+│   └── package.json
+├── frontend/        # React Frontend
+│   ├── src/
+│   │   ├── components/  # React component'leri
+│   │   ├── pages/       # Sayfa component'leri
+│   │   ├── services/    # API servisleri
+│   │   └── context/     # React Context'leri
+│   ├── public/          # Statik dosyalar
+│   └── package.json
+└── package.json     # Root package.json (monorepo)
+```
+
 - **Frontend**: React + TypeScript + Vite
 - **Backend**: NestJS + TypeORM + PostgreSQL
 
@@ -44,14 +67,34 @@ npm run start:dev
 
 ### Frontend
 
-1. Ana dizinde bağımlılıkları yükleyin:
+1. Frontend klasörüne gidin:
+```bash
+cd frontend
+```
+
+2. Bağımlılıkları yükleyin:
 ```bash
 npm install
 ```
 
-2. Frontend'i başlatın:
+3. Frontend'i başlatın:
 ```bash
 npm run dev
+```
+
+### Monorepo Komutları (Root'tan)
+
+Root dizinden tüm komutları çalıştırabilirsiniz:
+
+```bash
+# Frontend development server
+npm run dev:frontend
+
+# Backend development server
+npm run dev:backend
+
+# Her ikisini birlikte (farklı terminal'lerde)
+npm run dev:frontend & npm run dev:backend
 ```
 
 ## Özellikler
@@ -61,6 +104,7 @@ npm run dev
 - ✅ Kategori yönetimi (CRUD)
 - ✅ Ürün yönetimi (CRUD)
 - ✅ Sipariş yönetimi
+- ✅ Favori sistemi (Many-to-Many ilişki)
 - ✅ Admin paneli
 - ✅ Kullanıcı paneli
 
@@ -70,8 +114,10 @@ npm run dev
 - **Category**: Kategoriler
 - **Product**: Ürünler (Category ile bire-çok ilişki)
 - **Order**: Siparişler
-- **OrderItem**: Sipariş-ürün ilişkisi (çoka-çok)
+- **OrderItem**: Sipariş-ürün ilişkisi
+- **Favorite**: Kullanıcı-ürün favori ilişkisi (Many-to-Many junction table)
 
 ## API Endpoints
 
 Detaylı API dokümantasyonu için `backend/README.md` dosyasına bakın.
+Swagger dokümantasyonu: `http://localhost:3000/api`
