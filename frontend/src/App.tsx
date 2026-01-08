@@ -9,6 +9,7 @@ import Dashboard from './pages/admin/Dashboard'
 import Categories from './pages/admin/Categories'
 import AdminProducts from './pages/admin/Products'
 import Orders from './pages/admin/Orders'
+import Users from './pages/admin/Users'
 import MyOrders from './pages/user/MyOrders'
 import Products from './pages/user/Products'
 import Favorites from './pages/user/Favorites'
@@ -51,6 +52,11 @@ function App() {
       <Route path="/admin/orders" element={
         <ProtectedRoute requiredRole="ADMIN">
           <Orders />
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/users" element={
+        <ProtectedRoute requiredRole="ADMIN">
+          <Users />
         </ProtectedRoute>
       } />
       <Route path="/user/orders" element={

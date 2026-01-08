@@ -22,9 +22,21 @@ const Login: React.FC = () => {
       await login(email, password);
       navigate('/');
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || err.message || 'Giriş başarısız. Lütfen email ve şifrenizi kontrol edin.';
+      console.error('Login error details:', err);
+      console.error('Error response:', err.response);
+      console.error('Error message:', err.message);
+      
+      let errorMessage = 'Giriş başarısız. Lütfen email ve şifrenizi kontrol edin.';
+      
+      if (err.message && err.message.includes('Backend sunucusuna bağlanılamıyor')) {
+        errorMessage = 'Backend sunucusuna bağlanılamıyor. Lütfen backend\'in çalıştığından emin olun.';
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
       setError(errorMessage);
-      console.error('Login error:', err);
     } finally {
       setIsLoading(false);
     }

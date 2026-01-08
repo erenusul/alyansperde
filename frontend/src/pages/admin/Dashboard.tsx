@@ -7,7 +7,7 @@ import './Admin.css';
 /**
  * Admin Dashboard Component
  * Admin kullanıcılar için ana kontrol paneli sayfası
- * Kategoriler, ürünler ve siparişler için hızlı erişim linkleri sağlar
+ * Kategoriler, ürünler, siparişler ve kullanıcılar için hızlı erişim linkleri sağlar
  */
 const Dashboard: React.FC = () => {
   return (
@@ -30,6 +30,10 @@ const Dashboard: React.FC = () => {
         <Link to="/admin/orders" className="admin-card">
           <h2>Siparişler</h2>
           <p>Sipariş yönetimi ve durum güncellemeleri</p>
+        </Link>
+        <Link to="/admin/users" className="admin-card">
+          <h2>Kullanıcılar</h2>
+          <p>Kullanıcı yönetimi ve silme işlemleri</p>
         </Link>
       </div>
     </div>

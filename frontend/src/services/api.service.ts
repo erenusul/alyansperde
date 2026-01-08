@@ -24,9 +24,20 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => response,
-    (error) => {
-      if (error.response?.status === 401) {
-        const isLoginPage = window.location.pathname === '/login' || window.location.pathname === '/register';
+  (error) => {
+    // Network error (backend'e ulaşılamıyor)
+    if (!error.response) {
+      console.error('Network Error:', error.message);
+      console.error('API URL:', API_URL);
+      console.error('Request URL:', error.config?.url);
+      // Login/Register sayfalarında network hatasını göster
+      if (window.location.pathname === '/login' || window.location.pathname === '/register') {
+        return Promise.reject(new Error('Backend sunucusuna bağlanılamıyor. Lütfen backend\'in çalıştığından emin olun.'));
+      }
+    }
+    
+    if (error.response?.status === 401) {
+      const isLoginPage = window.location.pathname === '/login' || window.location.pathname === '/register';
       if (!isLoginPage) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
