@@ -113,3 +113,14 @@ Tüm veritabanı entity'leri `backend/src/entities/` klasöründe bulunur:
 - Entity'ler `entities/` klasöründe merkezi olarak yönetilir
 - Frontend ve backend tamamen ayrı klasörlerde, bağımsız çalışabilir
 
+
+
+
+
+
+
+
+
+
+
+

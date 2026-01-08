@@ -52,5 +52,37 @@ export class ProductsService {
     await this.productRepository.remove(product);
     return { message: 'Product deleted successfully' };
   }
+
+  async updateAllProductImages() {
+    const categoryImageMap: { [key: string]: string } = {
+      'Klasik Perdeler': '/alyansperdegorselleroptimize/Klasik_Kadife_Perde.png',
+      'Modern Rollo Stor': '/alyansperdegorselleroptimize/Modern_Rollo_Stor.png',
+      'Blackout Perdeler': '/alyansperdegorselleroptimize/Blackout_Perde.png',
+      'Dekoratif Tüller': '/alyansperdegorselleroptimize/Dekoratif_Tül_Perde.png',
+      'Zebra Stor': '/alyansperdegorselleroptimize/Zebra_Stor_Perde.png',
+      'Pleatli Perdeler': '/alyansperdegorselleroptimize/Pleatli_Perde.png'
+    };
+
+    const products = await this.productRepository.find({
+      relations: ['category'],
+    });
+
+    let updatedCount = 0;
+    for (const product of products) {
+      const categoryName = product.category?.name || '';
+      const defaultImage = categoryImageMap[categoryName];
+      
+      if (defaultImage && (!product.imageUrl || !product.imageUrl.includes('alyansperdegorselleroptimize'))) {
+        product.imageUrl = defaultImage;
+        await this.productRepository.save(product);
+        updatedCount++;
+      }
+    }
+
+    return { 
+      message: `${updatedCount} ürünün görseli güncellendi`,
+      updatedCount 
+    };
+  }
 }
 

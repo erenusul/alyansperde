@@ -55,5 +55,10 @@ export const productsService = {
   async delete(id: number): Promise<void> {
     await api.delete(`/products/${id}`);
   },
+
+  async updateAllImages(): Promise<{ message: string; updatedCount: number }> {
+    const response = await api.post<{ message: string; updatedCount: number }>('/products/update-images');
+    return response.data;
+  },
 };
 

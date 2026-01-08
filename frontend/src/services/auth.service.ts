@@ -48,7 +48,6 @@ export const authService = {
       const response = await api.get<User>('/auth/me');
       return response.data;
     } catch (error) {
-      // Token geçersizse localStorage'ı temizle
       this.logout();
       return null;
     }

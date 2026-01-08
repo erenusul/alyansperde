@@ -5,7 +5,6 @@ const Hero: React.FC = () => {
   const [showText, setShowText] = useState(false);
 
   useEffect(() => {
-    // Text appears after 2 seconds
     const timer = setTimeout(() => {
       setShowText(true);
     }, 2000);

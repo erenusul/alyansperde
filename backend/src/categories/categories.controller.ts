@@ -11,28 +11,16 @@ import { UserRole } from '../entities/user.entity';
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
-  /**
-   * Tüm kategorileri listeleme endpoint'i (Herkes erişebilir)
-   * GET /categories
-   */
   @Get()
   findAll() {
     return this.categoriesService.findAll();
   }
 
-  /**
-   * Kategori detayı endpoint'i (Herkes erişebilir)
-   * GET /categories/:id
-   */
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.categoriesService.findOne(+id);
   }
 
-  /**
-   * Yeni kategori oluşturma endpoint'i (Sadece Admin)
-   * POST /categories
-   */
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
@@ -40,10 +28,6 @@ export class CategoriesController {
     return this.categoriesService.create(createCategoryDto);
   }
 
-  /**
-   * Kategori güncelleme endpoint'i (Sadece Admin)
-   * PATCH /categories/:id
-   */
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
@@ -51,10 +35,6 @@ export class CategoriesController {
     return this.categoriesService.update(+id, updateCategoryDto);
   }
 
-  /**
-   * Kategori silme endpoint'i (Sadece Admin)
-   * DELETE /categories/:id
-   */
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)

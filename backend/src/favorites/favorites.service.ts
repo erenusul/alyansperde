@@ -15,13 +15,11 @@ export class FavoritesService {
   ) {}
 
   async addFavorite(userId: number, productId: number) {
-    // Ürünün var olup olmadığını kontrol et
     const product = await this.productRepository.findOne({ where: { id: productId } });
     if (!product) {
       throw new NotFoundException(`Product with ID ${productId} not found`);
     }
 
-    // Zaten favoride mi kontrol et
     const existingFavorite = await this.favoriteRepository.findOne({
       where: { userId, productId },
     });

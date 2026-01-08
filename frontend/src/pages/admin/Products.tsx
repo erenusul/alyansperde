@@ -88,6 +88,60 @@ const Products: React.FC = () => {
     }
   };
 
+  const handleUpdateAllImages = async () => {
+    if (!confirm('Tüm ürünlerin görsellerini kategorilerine göre güncellemek istediğinize emin misiniz?')) return;
+    try {
+      const result = await productsService.updateAllImages();
+      alert(result.message);
+      loadData();
+    } catch (error: any) {
+      alert(error.response?.data?.message || 'Görsel güncelleme başarısız');
+    }
+  };
+
+  const getProductImageUrl = (product: Product): string => {
+    // Eğer imageUrl varsa ve geçerli bir URL ise direkt kullan
+    if (product.imageUrl && product.imageUrl.trim() !== '') {
+      const trimmedUrl = product.imageUrl.trim();
+      // http:// veya https:// ile başlıyorsa (dış URL) veya / ile başlıyorsa (iç URL) kullan
+      if (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://') || trimmedUrl.startsWith('/')) {
+        return trimmedUrl;
+      }
+    }
+    
+    // Kategoriye göre varsayılan görsel (hem kategori adına hem de ID'ye göre)
+    const categoryImageMap: { [key: string]: string } = {
+      'Klasik Perdeler': '/alyansperdegorselleroptimize/Klasik_Kadife_Perde.png',
+      'Modern Rollo Stor': '/alyansperdegorselleroptimize/Modern_Rollo_Stor.png',
+      'Blackout Perdeler': '/alyansperdegorselleroptimize/Blackout_Perde.png',
+      'Dekoratif Tüller': '/alyansperdegorselleroptimize/Dekoratif_Tül_Perde.png',
+      'Zebra Stor': '/alyansperdegorselleroptimize/Zebra_Stor_Perde.png',
+      'Pleatli Perdeler': '/alyansperdegorselleroptimize/Pleatli_Perde.png'
+    };
+    
+    // Önce kategori adına göre kontrol et
+    const categoryName = product.category?.name || '';
+    if (categoryName && categoryImageMap[categoryName]) {
+      return categoryImageMap[categoryName];
+    }
+    
+    // Kategori ID'sine göre kontrol et (fallback)
+    const categoryIdMap: { [key: number]: string } = {
+      1: '/alyansperdegorselleroptimize/Klasik_Kadife_Perde.png',
+      3: '/alyansperdegorselleroptimize/Modern_Rollo_Stor.png',
+      4: '/alyansperdegorselleroptimize/Blackout_Perde.png',
+      5: '/alyansperdegorselleroptimize/Dekoratif_Tül_Perde.png',
+      6: '/alyansperdegorselleroptimize/Zebra_Stor_Perde.png',
+      7: '/alyansperdegorselleroptimize/Pleatli_Perde.png'
+    };
+    
+    if (product.categoryId && categoryIdMap[product.categoryId]) {
+      return categoryIdMap[product.categoryId];
+    }
+    
+    return '/perdeopt.png';
+  };
+
   if (loading) return <div className="admin-container">Yükleniyor...</div>;
 
   return (
@@ -95,13 +149,18 @@ const Products: React.FC = () => {
       <Link to="/admin" className="admin-back-home">← Geri Git</Link>
       <div className="admin-header">
         <h1>Ürün Yönetimi</h1>
-        <button onClick={() => {
-          setEditingProduct(null);
-          setFormData({ name: '', description: '', price: '', imageUrl: '', categoryId: '' });
-          setShowModal(true);
-        }}>
-          Yeni Ürün Ekle
-        </button>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <button onClick={handleUpdateAllImages} style={{ backgroundColor: '#28a745' }}>
+            Tüm Görselleri Güncelle
+          </button>
+          <button onClick={() => {
+            setEditingProduct(null);
+            setFormData({ name: '', description: '', price: '', imageUrl: '', categoryId: '' });
+            setShowModal(true);
+          }}>
+            Yeni Ürün Ekle
+          </button>
+        </div>
       </div>
 
       <table className="admin-table">
@@ -121,7 +180,7 @@ const Products: React.FC = () => {
               <td>{product.id}</td>
               <td>
                 <img 
-                  src={product.imageUrl || '/perdeopt.png'} 
+                  src={getProductImageUrl(product)} 
                   alt={product.name}
                   className="admin-product-image"
                 />

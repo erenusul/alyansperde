@@ -102,6 +102,15 @@
   letter-spacing: 1px;
   text-transform: uppercase;
   transition: all 0.3s ease;
+  outline: none;
+}
+
+.admin-header button:focus {
+  outline: none;
+}
+
+.admin-header button:focus-visible {
+  outline: none;
 }
 
 .admin-header button:hover {

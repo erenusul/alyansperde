@@ -9,7 +9,6 @@ const api = axios.create({
   },
 });
 
-// Request interceptor - Add JWT token to requests
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -23,13 +22,11 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor - Handle 401 errors
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Only redirect if not already on login page
-      const isLoginPage = window.location.pathname === '/login' || window.location.pathname === '/register';
+    (error) => {
+      if (error.response?.status === 401) {
+        const isLoginPage = window.location.pathname === '/login' || window.location.pathname === '/register';
       if (!isLoginPage) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');

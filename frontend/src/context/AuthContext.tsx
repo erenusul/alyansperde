@@ -33,14 +33,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const checkAuth = async () => {
       const token = authService.getToken();
       if (token) {
-        // Token varsa backend'de geçerliliğini kontrol et
         const verifiedUser = await authService.verifyToken();
         if (verifiedUser) {
-          // Token geçerliyse kullanıcı bilgilerini güncelle
           localStorage.setItem('user', JSON.stringify(verifiedUser));
           setUser(verifiedUser);
         } else {
-          // Token geçersizse kullanıcıyı temizle
           setUser(null);
         }
       }

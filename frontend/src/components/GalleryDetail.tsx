@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShoppingCart, faHome } from '@fortawesome/free-solid-svg-icons';
+import { faShoppingCart, faHome, faHeart } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import { useAuth } from '../context/AuthContext';
 import { ordersService } from '../services/orders.service';
 import { productsService } from '../services/products.service';
@@ -22,14 +23,11 @@ const GalleryDetail: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [loading, setLoading] = useState(true);
   
-  // Sepet state'leri
   const [cart, setCart] = useState<Array<{ productId: number; quantity: number }>>([]);
   const [showCart, setShowCart] = useState(false);
   
-  // Favori state'leri
   const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
   
-  // Tek ürün satın alma state'leri
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState<number>(1);
@@ -45,7 +43,6 @@ const GalleryDetail: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
-    // Sayfa yüklendiğinde en üste scroll yap
     window.scrollTo(0, 0);
     loadData();
     if (user) {
@@ -63,12 +60,10 @@ const GalleryDetail: React.FC = () => {
   };
 
   useEffect(() => {
-    // URL'den category parametresini oku ve kategori ID'sine çevir
     const urlCategory = searchParams.get('category') || category || 'all';
     if (urlCategory === 'all') {
       setSelectedCategoryId(null);
     } else if (categories.length > 0) {
-      // Kategori slug'ını kategori ismine çevir
       const categoryMap: { [key: string]: string } = {
         'klasik': 'Klasik Perdeler',
         'modern': 'Modern Rollo Stor',
@@ -137,7 +132,6 @@ const GalleryDetail: React.FC = () => {
     ...categories.map(cat => ({ value: cat.id, label: cat.name }))
   ];
 
-  // Sepet fonksiyonları
   const addToCart = (productId: number) => {
     if (!user) {
       alert('Sepete eklemek için lütfen giriş yapın.');
@@ -181,7 +175,6 @@ const GalleryDetail: React.FC = () => {
     }, 0);
   };
 
-  // Tek ürün satın alma
   const handleBuyClick = (product: Product) => {
     if (!user) {
       alert('Satın alma işlemi için lütfen giriş yapın.');
@@ -193,7 +186,6 @@ const GalleryDetail: React.FC = () => {
     setShowPaymentModal(true);
   };
 
-  // Sepetten toplu sipariş verme
   const handleCartCheckout = async () => {
     if (cart.length === 0) {
       alert('Sepetiniz boş!');
@@ -225,7 +217,6 @@ const GalleryDetail: React.FC = () => {
     setIsProcessing(true);
     
     try {
-      // Backend'deki gerçek ürün ID'si ile sipariş oluştur
       await ordersService.create({
         items: [{
           productId: selectedProduct.id,
@@ -247,7 +238,6 @@ const GalleryDetail: React.FC = () => {
         phone: ''
       });
       
-      // Siparişlerim sayfasına yönlendir
       navigate('/user/orders');
     } catch (error: any) {
       alert(error.response?.data?.message || 'Sipariş oluşturulurken bir hata oluştu.');
@@ -275,6 +265,50 @@ const GalleryDetail: React.FC = () => {
     } catch (error: any) {
       alert(error.response?.data?.message || 'İşlem başarısız');
     }
+  };
+
+  const getProductImageUrl = (product: Product): string => {
+    // Eğer imageUrl varsa ve geçerli bir URL ise direkt kullan
+    if (product.imageUrl && product.imageUrl.trim() !== '') {
+      const trimmedUrl = product.imageUrl.trim();
+      // http:// veya https:// ile başlıyorsa (dış URL) veya / ile başlıyorsa (iç URL) kullan
+      if (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://') || trimmedUrl.startsWith('/')) {
+        return trimmedUrl;
+      }
+    }
+    
+    // Kategoriye göre varsayılan görsel (hem kategori adına hem de ID'ye göre)
+    const categoryImageMap: { [key: string]: string } = {
+      'Klasik Perdeler': '/alyansperdegorselleroptimize/Klasik_Kadife_Perde.png',
+      'Modern Rollo Stor': '/alyansperdegorselleroptimize/Modern_Rollo_Stor.png',
+      'Blackout Perdeler': '/alyansperdegorselleroptimize/Blackout_Perde.png',
+      'Dekoratif Tüller': '/alyansperdegorselleroptimize/Dekoratif_Tül_Perde.png',
+      'Zebra Stor': '/alyansperdegorselleroptimize/Zebra_Stor_Perde.png',
+      'Pleatli Perdeler': '/alyansperdegorselleroptimize/Pleatli_Perde.png'
+    };
+    
+    // Önce kategori adına göre kontrol et
+    const categoryName = product.category?.name || '';
+    if (categoryName && categoryImageMap[categoryName]) {
+      return categoryImageMap[categoryName];
+    }
+    
+    // Kategori ID'sine göre kontrol et (fallback)
+    // Klasik Perdeler genelde ID 1, Modern Rollo Stor ID 3, vb.
+    const categoryIdMap: { [key: number]: string } = {
+      1: '/alyansperdegorselleroptimize/Klasik_Kadife_Perde.png',
+      3: '/alyansperdegorselleroptimize/Modern_Rollo_Stor.png',
+      4: '/alyansperdegorselleroptimize/Blackout_Perde.png',
+      5: '/alyansperdegorselleroptimize/Dekoratif_Tül_Perde.png',
+      6: '/alyansperdegorselleroptimize/Zebra_Stor_Perde.png',
+      7: '/alyansperdegorselleroptimize/Pleatli_Perde.png'
+    };
+    
+    if (product.categoryId && categoryIdMap[product.categoryId]) {
+      return categoryIdMap[product.categoryId];
+    }
+    
+    return '/perdeopt.png';
   };
 
 
@@ -340,13 +374,17 @@ const GalleryDetail: React.FC = () => {
                         className={`favorite-btn ${isFavorite ? 'active' : ''}`}
                         onClick={() => handleToggleFavorite(product.id)}
                         title={isFavorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}
+                        aria-label={isFavorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}
                       >
-                        {isFavorite ? '❤️' : '🤍'}
+                        <FontAwesomeIcon 
+                          icon={isFavorite ? faHeart : faHeartRegular} 
+                          className="favorite-icon"
+                        />
                       </button>
                     )}
                     <div className="gallery-detail-image-container">
                       <img 
-                        src={product.imageUrl || "/perdeopt.png"} 
+                        src={getProductImageUrl(product)} 
                         alt={product.name}
                         className="gallery-detail-image"
                       />

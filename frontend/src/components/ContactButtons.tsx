@@ -11,7 +11,6 @@ const ContactButtons: React.FC = () => {
         const aboutTop = aboutSection.offsetTop;
         const scrollPosition = window.scrollY;
         
-        // About kısmına gelince butonları göster
         if (scrollPosition >= aboutTop - 100) {
           setIsVisible(true);
         } else {
@@ -20,20 +19,17 @@ const ContactButtons: React.FC = () => {
       }
     };
 
-    // Sayfa yüklendiğinde de kontrol et
     handleScroll();
     
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   const handleContactClick = () => {
-    // Direkt arama yap
     window.open('tel:05551234567', '_self');
   };
 
   const handleWhatsAppClick = () => {
-    // WhatsApp iletişim linki
-    const phoneNumber = '905551234567'; // Uydurma telefon numarası
+    const phoneNumber = '905551234567';
     const message = 'Merhaba, perde hizmetleriniz hakkında bilgi almak istiyorum.';
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');

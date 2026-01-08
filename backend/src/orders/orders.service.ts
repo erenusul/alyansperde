@@ -23,7 +23,6 @@ export class OrdersService {
     let totalPrice = 0;
     const orderItems: OrderItem[] = [];
 
-    // Validate products and calculate total price
     for (const item of createOrderDto.items) {
       const product = await this.productRepository.findOne({
         where: { id: item.productId },
@@ -75,7 +74,6 @@ export class OrdersService {
       throw new NotFoundException(`Order with ID ${id} not found`);
     }
 
-    // User can only see their own orders unless they are admin
     if (user.role !== UserRole.ADMIN && order.userId !== user.id) {
       throw new ForbiddenException('You can only view your own orders');
     }
@@ -86,7 +84,6 @@ export class OrdersService {
   async update(id: number, updateOrderDto: UpdateOrderDto, user: User) {
     const order = await this.findOne(id, user);
 
-    // Only admin can update orders
     if (user.role !== UserRole.ADMIN) {
       throw new ForbiddenException('Only admins can update orders');
     }
@@ -98,12 +95,10 @@ export class OrdersService {
   async remove(id: number, user: User) {
     const order = await this.findOne(id, user);
 
-    // Only admin can delete orders
     if (user.role !== UserRole.ADMIN) {
       throw new ForbiddenException('Only admins can delete orders');
     }
 
-    // First delete order items, then delete the order
     if (order.orderItems && order.orderItems.length > 0) {
       await this.orderItemRepository.remove(order.orderItems);
     }

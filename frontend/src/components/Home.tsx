@@ -12,7 +12,6 @@ const Home: React.FC = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Hash ile yönlendirme yapıldığında ilgili bölüme scroll yap
     if (location.hash) {
       const element = document.querySelector(location.hash);
       if (element) {
@@ -21,7 +20,6 @@ const Home: React.FC = () => {
         }, 100);
       }
     } else {
-      // Hash yoksa en üste scroll yap
       window.scrollTo(0, 0);
     }
   }, [location.hash]);

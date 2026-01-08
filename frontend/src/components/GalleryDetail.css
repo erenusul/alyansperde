@@ -356,20 +356,20 @@
   position: absolute;
   top: 10px;
   right: 10px;
-  background: transparent;
-  border: none;
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid #e0e0e0;
   border-radius: 50%;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 1.3rem;
   z-index: 10;
-  transition: opacity 0.2s ease;
+  transition: all 0.3s ease;
   padding: 0;
   outline: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .favorite-btn:focus {
@@ -377,15 +377,42 @@
 }
 
 .favorite-btn:focus-visible {
-  outline: none;
+  outline: 2px solid #2c2c2c;
+  outline-offset: 2px;
 }
 
 .favorite-btn:hover {
-  opacity: 0.7;
+  background: rgba(255, 255, 255, 1);
+  border-color: #2c2c2c;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .favorite-btn.active {
-  opacity: 1;
+  background: rgba(255, 255, 255, 1);
+  border-color: #dc3545;
+}
+
+.favorite-btn.active .favorite-icon {
+  color: #dc3545;
+}
+
+.favorite-icon {
+  font-size: 1.2rem;
+  color: #666;
+  transition: color 0.3s ease;
+}
+
+.favorite-btn.active .favorite-icon {
+  color: #dc3545;
+}
+
+.favorite-btn:hover .favorite-icon {
+  color: #2c2c2c;
+}
+
+.favorite-btn.active:hover .favorite-icon {
+  color: #c82333;
 }
 
 .gallery-detail-item:hover {

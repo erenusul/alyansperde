@@ -43,6 +43,49 @@ const Favorites: React.FC = () => {
     }
   };
 
+  const getProductImageUrl = (product: Favorite['product']): string => {
+    // Eğer imageUrl varsa ve geçerli bir URL ise direkt kullan
+    if (product.imageUrl && product.imageUrl.trim() !== '') {
+      const trimmedUrl = product.imageUrl.trim();
+      // http:// veya https:// ile başlıyorsa (dış URL) veya / ile başlıyorsa (iç URL) kullan
+      if (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://') || trimmedUrl.startsWith('/')) {
+        return trimmedUrl;
+      }
+    }
+    
+    // Kategoriye göre varsayılan görsel (hem kategori adına hem de ID'ye göre)
+    const categoryImageMap: { [key: string]: string } = {
+      'Klasik Perdeler': '/alyansperdegorselleroptimize/Klasik_Kadife_Perde.png',
+      'Modern Rollo Stor': '/alyansperdegorselleroptimize/Modern_Rollo_Stor.png',
+      'Blackout Perdeler': '/alyansperdegorselleroptimize/Blackout_Perde.png',
+      'Dekoratif Tüller': '/alyansperdegorselleroptimize/Dekoratif_Tül_Perde.png',
+      'Zebra Stor': '/alyansperdegorselleroptimize/Zebra_Stor_Perde.png',
+      'Pleatli Perdeler': '/alyansperdegorselleroptimize/Pleatli_Perde.png'
+    };
+    
+    // Önce kategori adına göre kontrol et
+    const categoryName = product.category?.name || '';
+    if (categoryName && categoryImageMap[categoryName]) {
+      return categoryImageMap[categoryName];
+    }
+    
+    // Kategori ID'sine göre kontrol et (fallback)
+    const categoryIdMap: { [key: number]: string } = {
+      1: '/alyansperdegorselleroptimize/Klasik_Kadife_Perde.png',
+      3: '/alyansperdegorselleroptimize/Modern_Rollo_Stor.png',
+      4: '/alyansperdegorselleroptimize/Blackout_Perde.png',
+      5: '/alyansperdegorselleroptimize/Dekoratif_Tül_Perde.png',
+      6: '/alyansperdegorselleroptimize/Zebra_Stor_Perde.png',
+      7: '/alyansperdegorselleroptimize/Pleatli_Perde.png'
+    };
+    
+    if (product.categoryId && categoryIdMap[product.categoryId]) {
+      return categoryIdMap[product.categoryId];
+    }
+    
+    return '/perdeopt.png';
+  };
+
   if (loading) return <div className="user-container">Yükleniyor...</div>;
 
   return (
@@ -65,9 +108,7 @@ const Favorites: React.FC = () => {
         <div className="products-grid">
           {favorites.map((favorite) => (
             <div key={favorite.id} className="product-card">
-              {favorite.product.imageUrl && (
-                <img src={favorite.product.imageUrl} alt={favorite.product.name} />
-              )}
+              <img src={getProductImageUrl(favorite.product)} alt={favorite.product.name} />
               <h3>{favorite.product.name}</h3>
               <p>{favorite.product.description}</p>
               <div className="product-footer">

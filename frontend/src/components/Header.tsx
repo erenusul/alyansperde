@@ -15,7 +15,6 @@ const Header: React.FC = () => {
   const isHomePage = location.pathname === '/';
 
   useEffect(() => {
-    // Sadece ana sayfada scroll ile header'ı gizle/göster
     if (!isHomePage) {
       setIsScrolled(true); // Ana sayfa dışında her zaman görünür
       return;
@@ -27,7 +26,6 @@ const Header: React.FC = () => {
         const aboutTop = aboutSection.offsetTop;
         const scrollPosition = window.scrollY;
         
-        // About kısmına gelince header'ı göster
         if (scrollPosition >= aboutTop - 100) {
           setIsScrolled(true);
         } else {
@@ -41,7 +39,6 @@ const Header: React.FC = () => {
   }, [isHomePage]);
 
   useEffect(() => {
-    // Mobil menü açıkken body scroll'unu engelle
     if (isMobileMenuOpen) {
       document.body.style.overflow = 'hidden';
     } else {
@@ -54,7 +51,6 @@ const Header: React.FC = () => {
   }, [isMobileMenuOpen]);
 
   useEffect(() => {
-    // User dropdown dışına tıklanınca kapat
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       if (!target.closest('.user-dropdown-wrapper')) {

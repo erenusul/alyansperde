@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faHeart } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import { productsService } from '../../services/products.service';
 import type { Product } from '../../services/products.service';
 import { categoriesService } from '../../services/categories.service';
@@ -143,6 +144,49 @@ const Products: React.FC = () => {
     }
   };
 
+  const getProductImageUrl = (product: Product): string => {
+    // Eğer imageUrl varsa ve geçerli bir URL ise direkt kullan
+    if (product.imageUrl && product.imageUrl.trim() !== '') {
+      const trimmedUrl = product.imageUrl.trim();
+      // http:// veya https:// ile başlıyorsa (dış URL) veya / ile başlıyorsa (iç URL) kullan
+      if (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://') || trimmedUrl.startsWith('/')) {
+        return trimmedUrl;
+      }
+    }
+    
+    // Kategoriye göre varsayılan görsel (hem kategori adına hem de ID'ye göre)
+    const categoryImageMap: { [key: string]: string } = {
+      'Klasik Perdeler': '/alyansperdegorselleroptimize/Klasik_Kadife_Perde.png',
+      'Modern Rollo Stor': '/alyansperdegorselleroptimize/Modern_Rollo_Stor.png',
+      'Blackout Perdeler': '/alyansperdegorselleroptimize/Blackout_Perde.png',
+      'Dekoratif Tüller': '/alyansperdegorselleroptimize/Dekoratif_Tül_Perde.png',
+      'Zebra Stor': '/alyansperdegorselleroptimize/Zebra_Stor_Perde.png',
+      'Pleatli Perdeler': '/alyansperdegorselleroptimize/Pleatli_Perde.png'
+    };
+    
+    // Önce kategori adına göre kontrol et
+    const categoryName = product.category?.name || '';
+    if (categoryName && categoryImageMap[categoryName]) {
+      return categoryImageMap[categoryName];
+    }
+    
+    // Kategori ID'sine göre kontrol et (fallback)
+    const categoryIdMap: { [key: number]: string } = {
+      1: '/alyansperdegorselleroptimize/Klasik_Kadife_Perde.png',
+      3: '/alyansperdegorselleroptimize/Modern_Rollo_Stor.png',
+      4: '/alyansperdegorselleroptimize/Blackout_Perde.png',
+      5: '/alyansperdegorselleroptimize/Dekoratif_Tül_Perde.png',
+      6: '/alyansperdegorselleroptimize/Zebra_Stor_Perde.png',
+      7: '/alyansperdegorselleroptimize/Pleatli_Perde.png'
+    };
+    
+    if (product.categoryId && categoryIdMap[product.categoryId]) {
+      return categoryIdMap[product.categoryId];
+    }
+    
+    return '/perdeopt.png';
+  };
+
   if (loading) return <div className="user-container">Yükleniyor...</div>;
 
   return (
@@ -186,13 +230,15 @@ const Products: React.FC = () => {
                   className={`favorite-btn ${isFavorite ? 'active' : ''}`}
                   onClick={() => handleToggleFavorite(product.id)}
                   title={isFavorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}
+                  aria-label={isFavorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}
                 >
-                  {isFavorite ? '❤️' : '🤍'}
+                  <FontAwesomeIcon 
+                    icon={isFavorite ? faHeart : faHeartRegular} 
+                    className="favorite-icon"
+                  />
                 </button>
               )}
-              {product.imageUrl && (
-                <img src={product.imageUrl} alt={product.name} />
-              )}
+              <img src={getProductImageUrl(product)} alt={product.name} />
               <h3>{product.name}</h3>
               <p>{product.description}</p>
               <div className="product-footer">

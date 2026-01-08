@@ -14,10 +14,8 @@ const Services: React.FC = () => {
         const rect = servicesSection.getBoundingClientRect();
         const windowHeight = window.innerHeight;
         
-        // Section'ın %50'si görünür olduğunda animasyonu başlat
         if (rect.top < windowHeight * 0.8 && rect.bottom > 0) {
           setIsVisible(true);
-          // Başlık geldikten 0.5 saniye sonra servisleri göster
           setTimeout(() => {
             setShowServices(true);
           }, 500);
@@ -26,7 +24,6 @@ const Services: React.FC = () => {
     };
 
     window.addEventListener('scroll', handleScroll);
-    // İlk yüklemede kontrol et
     handleScroll();
     
     return () => window.removeEventListener('scroll', handleScroll);
